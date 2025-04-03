@@ -3,448 +3,401 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Federal.wtf - Roblox Mic Up Script | Voice Chat | Reanimation</title>
-    <meta name="description" content="Original creator of Roblox voice chat joining. Advanced Mic Up script featuring R15/R6 reanimation, VR copy, custom dances, and more. Join our Discord community.">
-    <meta name="keywords" content="federal.wtf, roblox script, mic up, voice chat script, roblox reanimation, r15 reanimation, r6 reanimation, roblox dance script, federal script, roblox vr copy, edancer script, roblox invisible script, voice chat joiner">
-    <meta property="og:title" content="Federal.wtf - Advanced Roblox Scripts">
-    <meta property="og:description" content="Join voice chat instantly with the original VC script. Features: reanimation, custom dances, VR copy, and more.">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://federal.wtf">
-    <link href="https://cdn.sell.app/embed/style.css" rel="stylesheet"/>
+    <title>federal</title>
     <style>
-        :root {
-            --pastel-blue: #89CFF0;
-            --dark-bg: #0a0a0a;
-        }
-
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-family: 'Consolas', monospace;
         }
-
-        html {
-            scroll-behavior: smooth;
-        }
-
+        
         body {
-            background-color: var(--dark-bg);
-            color: white;
+            background-color: #121212;
+            color: #f5f5f5;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
             overflow-x: hidden;
         }
-
-        #particles {
+        
+        .bg {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: 1;
-            pointer-events: none;
+            z-index: -1;
+            opacity: 0.3;
         }
-
-        .section {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            position: relative;
-            z-index: 2;
-            padding: 2rem;
-            overflow: hidden;
-        }
-
-        .hero {
-            text-align: center;
-        }
-
-        .title {
-            font-size: 5rem;
-            margin-bottom: 2rem;
-            background: linear-gradient(45deg, white, var(--pastel-blue));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            opacity: 0;
-            transform: translateY(30px);
-            animation: fadeInUp 1s ease forwards, titleGlow 2s ease-in-out infinite;
-            position: relative;
-            text-shadow: 0 0 10px rgba(137, 207, 240, 0.3);
-        }
-
-        .title::before {
-            content: 'Federal.wtf';
+        
+        .bg span {
             position: absolute;
-            left: 0;
-            top: 0;
-            width: 100%;
-            background: linear-gradient(45deg, transparent 20%, var(--pastel-blue) 40%, white 60%, transparent 80%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            animation: shine 4s ease-in-out infinite;
-            background-size: 200% auto;
-            opacity: 0.8;
+            background: #cdbb8a;
+            pointer-events: none;
+            border-radius: 50%;
+            animation: anim 8s linear infinite;
+            opacity: 0.4;
         }
-
-        @keyframes shine {
+        
+        @keyframes anim {
             0% {
-                background-position: -200% center;
+                transform: translateY(0) rotate(0deg);
+                opacity: 0;
+                border-radius: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
             }
             100% {
-                background-position: 200% center;
+                transform: translateY(-1000px) rotate(720deg);
+                opacity: 0;
             }
         }
-
-        @keyframes titleGlow {
-            0%, 100% {
-                text-shadow: 0 0 10px rgba(137, 207, 240, 0.3);
-            }
-            50% {
-                text-shadow: 0 0 20px rgba(137, 207, 240, 0.5);
-            }
-        }
-
-        .buttons {
+        
+        .box {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
             display: flex;
-            gap: 1.5rem;
-            opacity: 0;
-            transform: translateY(30px);
-            animation: fadeInUp 1s ease 0.3s forwards;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            width: 100%;
+            z-index: 1;
         }
-
-        .btn {
-            padding: 1rem 2.5rem;
-            border: none;
+        
+        .top {
+            text-align: center;
+            margin-bottom: 20px;
+            animation: down 1s;
+        }
+        
+        @keyframes down {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        h1 {
+            color: #cdbb8a;
+            font-size: 4rem;
+            margin-bottom: 10px;
+            text-transform: lowercase;
+            letter-spacing: 3px;
+            text-shadow: 0 0 10px rgba(205, 187, 138, 0.5);
+        }
+        
+        .bio {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+            color: #aaaaaa;
+            animation: fade 1.5s;
+        }
+        
+        @keyframes fade {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .sec {
+            width: 100%;
+            border: 1px solid #cdbb8a;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-radius: 5px;
+            background-color: rgba(26, 26, 26, 0.8);
+            backdrop-filter: blur(5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            animation: up 0.8s;
+            transition: transform 0.3s, box-shadow 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .sec:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(205, 187, 138, 0.2);
+        }
+        
+        @keyframes up {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .sec h2 {
+            color: #cdbb8a;
+            margin-bottom: 15px;
+            font-size: 1.7rem;
+            text-transform: lowercase;
+            letter-spacing: 1px;
+            display: inline-block;
+            position: relative;
+        }
+        
+        .sec h2::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: #cdbb8a;
+            transform: scaleX(0);
+            transform-origin: right;
+            transition: transform 0.5s;
+        }
+        
+        .sec:hover h2::after {
+            transform: scaleX(1);
+            transform-origin: left;
+        }
+        
+        .links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            width: 100%;
+        }
+        
+        .link {
+            display: block;
+            padding: 12px 15px;
+            background-color: #202020;
+            color: #ffffff;
+            text-decoration: none;
+            text-align: center;
             border-radius: 4px;
-            font-size: 1.1rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.3s;
+            border: 1px solid #333333;
+            font-size: 0.95rem;
+        }
+        
+        .link:hover {
+            background-color: #cdbb8a;
+            color: #121212;
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .dc {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            width: 100%;
+        }
+        
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            width: 100%;
+        }
+        
+        .tag {
+            padding: 8px 15px;
+            background-color: #202020;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border: 1px solid #333333;
+            transition: all 0.3s;
+        }
+        
+        .tag:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+            background-color: #272727;
+        }
+        
+        .name {
+            font-weight: bold;
+        }
+        
+        .status {
+            color: #cdbb8a;
+            font-size: 0.8rem;
+            padding: 2px 6px;
+            background-color: rgba(205, 187, 138, 0.1);
+            border-radius: 3px;
+        }
+        
+        .sus {
+            color: #ff6b6b;
+            background-color: rgba(255, 107, 107, 0.1);
+        }
+        
+        .srv {
+            padding: 12px 20px;
+            background-color: #202020;
+            border-radius: 4px;
+            text-align: center;
+            width: 100%;
+            border: 1px solid #333333;
+            transition: all 0.3s;
+            margin-top: 10px;
             position: relative;
             overflow: hidden;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            font-weight: 600;
-            text-decoration: none;
         }
-
-        .btn::before {
+        
+        .srv::before {
             content: '';
             position: absolute;
             top: 0;
             left: -100%;
             width: 100%;
             height: 100%;
-            background: linear-gradient(
-                120deg,
-                transparent,
-                rgba(255, 255, 255, 0.2),
-                transparent
-            );
+            background: linear-gradient(90deg, transparent, rgba(205, 187, 138, 0.1), transparent);
             transition: 0.5s;
         }
-
-        .btn:hover::before {
+        
+        .srv:hover::before {
             left: 100%;
         }
-
-        .btn-primary {
-            background: linear-gradient(45deg, var(--pastel-blue), #5db6e5);
-            color: var(--dark-bg);
-            box-shadow: 0 0 20px rgba(137, 207, 240, 0.3);
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 0 30px rgba(137, 207, 240, 0.5);
-        }
-
-        .btn-secondary {
-            background: transparent;
-            border: 2px solid var(--pastel-blue);
-            color: var(--pastel-blue);
-        }
-
-        .btn-secondary:hover {
-            background: rgba(137, 207, 240, 0.1);
-            transform: translateY(-3px);
-            box-shadow: 0 0 30px rgba(137, 207, 240, 0.2);
-        }
-
-        .features {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-            max-width: 1200px;
-            width: 100%;
-            padding: 4rem 2rem;
-        }
-
-        .feature {
-            background: rgba(13, 13, 13, 0.95);
-            border: 1px solid rgba(137, 207, 240, 0.1);
-            padding: 2rem;
-            border-radius: 8px;
+        
+        .srv a {
+            color: #cdbb8a;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s;
             position: relative;
-            overflow: hidden;
-            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
         }
-
-        .feature::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 4px;
-            height: 100%;
-            background: var(--pastel-blue);
-            transform: scaleY(0);
-            transform-origin: bottom;
-            transition: transform 0.6s ease;
+        
+        .srv a:hover {
+            text-shadow: 0 0 5px rgba(205, 187, 138, 0.5);
         }
-
-        .feature:hover::before {
-            transform: scaleY(1);
+        
+        footer {
+            text-align: center;
+            margin-top: auto;
+            padding: 20px;
+            color: #666666;
+            font-size: 0.9rem;
+            animation: fade 2s;
         }
-
-        .feature:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(137, 207, 240, 0.1);
-            border-color: rgba(137, 207, 240, 0.3);
-        }
-
-        .feature h2 {
-            color: var(--pastel-blue);
-            margin-bottom: 1rem;
-            font-size: 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-weight: 600;
-        }
-
-        .feature h2::before {
-            content: '#';
-            font-size: 1rem;
-            color: rgba(137, 207, 240, 0.5);
-        }
-
-        .feature p {
-            color: #999;
-            line-height: 1.6;
-            font-size: 0.95rem;
-        }
-
-        @keyframes fadeInUp {
-            to {
-                opacity: 1;
-                transform: translateY(0);
+        
+        @media (max-width: 600px) {
+            .box {
+                padding: 20px 10px;
             }
-        }
-
-        .scroll-indicator {
-            position: absolute;
-            bottom: 2rem;
-            left: 50%;
-            transform: translateX(-50%);
-            opacity: 0;
-            animation: fadeInUp 1s ease 0.6s forwards, bounce 2s infinite;
-            cursor: pointer;
-        }
-
-        .scroll-indicator svg {
-            stroke: var(--pastel-blue);
-        }
-
-        @keyframes bounce {
-            0%, 20%, 50%, 80%, 100% {
-                transform: translateY(0);
-            }
-            40% {
-                transform: translateY(-10px);
-            }
-            60% {
-                transform: translateY(-5px);
-            }
-        }
-
-        .feature.slide-up {
-            opacity: 0;
-            transform: translateY(100px);
-        }
-
-        .feature.slide-up.active {
-            opacity: 1;
-            transform: translateY(0);
-            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .smooth-scroll {
-            scroll-behavior: smooth;
-        }
-
-        @media (max-width: 768px) {
-            .title {
+            
+            h1 {
                 font-size: 3rem;
-            }
-
-            .buttons {
-                flex-direction: column;
-                width: 100%;
-                max-width: 300px;
-            }
-
-            .btn {
-                width: 100%;
-                text-align: center;
-            }
-
-            .features {
-                grid-template-columns: 1fr;
-                padding: 2rem 1rem;
             }
         }
     </style>
 </head>
-<body class="smooth-scroll">
-    <canvas id="particles"></canvas>
-
-    <section class="section hero">
-        <h1 class="title">Federal.wtf</h1>
-        <div class="buttons">
-            <button
-                class="btn btn-primary"
-                data-sell-store="55174"
-                data-sell-product="269221"
-                data-sell-theme=""
-                data-sell-darkmode="true"
-            >
-                Purchase Now
-            </button>
-            <a 
-                href="https://discord.gg/federal-wtf" 
-                class="btn btn-secondary"
-                target="_blank" 
-                rel="noopener noreferrer"
-            >
-                Join Discord
-            </a>
+<body>
+    <div class="bg" id="bg"></div>
+    
+    <div class="box">
+        <div class="top">
+            <h1>federal</h1>
+            <div class="bio">17 // software developer</div>
         </div>
-        <div class="scroll-indicator">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M12 5v14M19 12l-7 7-7-7"></path>
-            </svg>
-        </div>
-    </section>
-
-    <section class="section">
-        <div class="features">
-            <div class="feature slide-up">
-                <h2>Force Join Voice Chat</h2>
-                <p>I'm the original creator of voice chat joining. The method I leaked before isn't what we use now - this is way better. Join VC instantly, no suspension. Clean and undetected.</p>
-            </div>
-            <div class="feature slide-up">
-                <h2>R15 Reanimation</h2>
-                <p>Full FE control over your character's limbs. Rip custom dances from other games and use them directly in your script.</p>
-            </div>
-            <div class="feature slide-up">
-                <h2>R6 Reanimation</h2>
-                <p>Converts R15 to R6 on the fly. Run any R6 animation on R15 characters - simple as that.</p>
-            </div>
-            <div class="feature slide-up">
-                <h2>Extra Features</h2>
-                <p>Scale your character size, copy other players including VR, go invisible while keeping chat/VC, and freeze your limbs while moving freely.</p>
-            </div>
-            <div class="feature slide-up">
-                <h2>Private & Safe</h2>
-                <p>Been scripting since I was 8. Your info stays private, script stays undetected. Check the vouches in our Discord.</p>
-            </div>
-            <div class="feature slide-up">
-                <h2>Custom Dances</h2>
-                <p>Import and use any dance animation you want. Full compatibility with R6 and R15 - works with animations from any Roblox game.</p>
+        
+        <div class="sec">
+            <h2>Links</h2>
+            <div class="links">
+                <a href="https://juggi.ng/federal" class="link" target="_blank">juggi.ng/federal</a>
+                <a href="https://silenced.rip/federal" class="link" target="_blank">silenced.rip/federal</a>
+                <a href="https://suicides.live/federal" class="link" target="_blank">suicides.live/federal</a>
+                <a href="https://fakecrime.bio/federal" class="link" target="_blank">fakecrime.bio/federal</a>
+                <a href="https://ammo.lol/federal" class="link" target="_blank">ammo.lol/federal</a>
+                <a href="https://guns.lol/moneyrun" class="link" target="_blank">guns.lol/moneyrun</a>
+                <a href="https://federal.wtf" class="link" target="_blank">federal.wtf</a>
             </div>
         </div>
-    </section>
-
-    <script src="https://cdn.sell.app/embed/script.js" type="module"></script>
-
+        
+        <div class="sec">
+            <h2>Discord</h2>
+            <div class="dc">
+                <div class="tags">
+                    <div class="tag">
+                        <span class="name">0x260</span>
+                        <span class="status">main</span>
+                    </div>
+                    <div class="tag">
+                        <span class="name">0x270</span>
+                        <span class="status">alt</span>
+                    </div>
+                </div>
+                
+                <div class="tags" style="margin-top: 15px;">
+                    <div class="tag">
+                        <span class="name">moneyrun</span>
+                        <span class="status sus">suspended</span>
+                    </div>
+                    <div class="tag">
+                        <span class="name">moneyrunfed</span>
+                        <span class="status sus">suspended</span>
+                    </div>
+                </div>
+                
+                <div class="srv">
+                    <a href="https://discord.gg/FazWanUUBE" target="_blank">discord.gg/FazWanUUBE</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        &copy; 2025 federal
+    </footer>
+    
     <script>
-
-        const canvas = document.getElementById('particles');
-        const ctx = canvas.getContext('2d');
-
-        function setCanvasSize() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        }
-        setCanvasSize();
-        window.addEventListener('resize', setCanvasSize);
-
-        class Particle {
-            constructor() {
-                this.reset();
-            }
-
-            reset() {
-                this.x = Math.random() * canvas.width;
-                this.y = Math.random() * canvas.height;
-                this.size = Math.random() * 2;
-                this.speedX = (Math.random() - 0.5) * 0.5;
-                this.speedY = (Math.random() - 0.5) * 0.5;
-                this.opacity = Math.random() * 0.5;
-            }
-
-            update() {
-                this.x += this.speedX;
-                this.y += this.speedY;
-
-                if (this.x > canvas.width || this.x < 0 || this.y > canvas.height || this.y < 0) {
-                    this.reset();
-                }
-            }
-
-            draw() {
-                ctx.fillStyle = `rgba(137, 207, 240, ${this.opacity})`;
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fill();
+        function init() {
+            const bg = document.getElementById('bg');
+            const n = 25;
+            
+            for (let i = 0; i < n; i++) {
+                const s = document.createElement('span');
+                
+                const size = Math.random() * 40 + 10;
+                const x = Math.random() * 100;
+                const dur = Math.random() * 15 + 8;
+                const delay = Math.random() * 5;
+                
+                s.style.width = size + 'px';
+                s.style.height = size + 'px';
+                s.style.left = x + '%';
+                s.style.bottom = '-100px';
+                s.style.animationDuration = dur + 's';
+                s.style.animationDelay = delay + 's';
+                
+                bg.appendChild(s);
             }
         }
-
-        const particles = Array.from({ length: 50 }, () => new Particle());
-
-        function animate() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            particles.forEach(particle => {
-                particle.update();
-                particle.draw();
+        
+        init();
+        
+        document.querySelectorAll('.link').forEach(l => {
+            l.addEventListener('mouseenter', () => {
+                l.style.transform = 'translateY(-2px) scale(1.05)';
             });
-            requestAnimationFrame(animate);
-        }
-        animate();
-
-        const features = document.querySelectorAll('.feature.slide-up');
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: '0px 0px -50px 0px'
-        };
-
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('active');
-                    observer.unobserve(entry.target);
-                }
+            
+            l.addEventListener('mouseleave', () => {
+                l.style.transform = '';
             });
-        }, observerOptions);
-
-        features.forEach(feature => {
-            observer.observe(feature);
-        });
-
-        document.querySelector('.scroll-indicator').addEventListener('click', () => {
-            const featuresSection = document.querySelector('.features');
-            featuresSection.scrollIntoView({ behavior: 'smooth' });
         });
     </script>
 </body>
