@@ -59,7 +59,7 @@
         }
         
         .box {
-            max-width: 1200px;
+            max-width: 900px;
             margin: 0 auto;
             padding: 40px 20px;
             display: flex;
@@ -171,8 +171,8 @@
         
         .links {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 15px;
             width: 100%;
         }
         
@@ -187,6 +187,22 @@
             transition: all 0.3s;
             border: 1px solid #333333;
             font-size: 0.95rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .link .main {
+            font-weight: bold;
+        }
+        
+        .link .alias {
+            font-size: 0.85rem;
+            opacity: 0.7;
+            background: rgba(205, 187, 138, 0.1);
+            padding: 3px 7px;
+            border-radius: 3px;
+            margin-left: 8px;
         }
         
         .link:hover {
@@ -318,13 +334,32 @@
         <div class="sec">
             <h2>Links</h2>
             <div class="links">
-                <a href="https://juggi.ng/federal" class="link" target="_blank">juggi.ng/federal</a>
-                <a href="https://silenced.rip/federal" class="link" target="_blank">silenced.rip/federal</a>
-                <a href="https://suicides.live/federal" class="link" target="_blank">suicides.live/federal</a>
-                <a href="https://fakecrime.bio/federal" class="link" target="_blank">fakecrime.bio/federal</a>
-                <a href="https://ammo.lol/federal" class="link" target="_blank">ammo.lol/federal</a>
-                <a href="https://guns.lol/moneyrun" class="link" target="_blank">guns.lol/moneyrun</a>
-                <a href="https://federal.wtf" class="link" target="_blank">federal.wtf</a>
+                <a href="https://juggi.ng/federal" class="link" target="_blank">
+                    <span class="main">juggi.ng/federal</span>
+                    <span class="alias">/racist</span>
+                </a>
+                <a href="https://silenced.rip/federal" class="link" target="_blank">
+                    <span class="main">silenced.rip/federal</span>
+                    <span class="alias">/racist</span>
+                </a>
+                <a href="https://suicides.live/federal" class="link" target="_blank">
+                    <span class="main">suicides.live/federal</span>
+                    <span class="alias">/racist</span>
+                </a>
+                <a href="https://fakecrime.bio/federal" class="link" target="_blank">
+                    <span class="main">fakecrime.bio/federal</span>
+                    <span class="alias">/cvc</span>
+                </a>
+                <a href="https://guns.lol/moneyrun" class="link" target="_blank">
+                    <span class="main">guns.lol/moneyrun</span>
+                    <span class="alias">/chinks</span>
+                </a>
+                <a href="https://ammo.lol/federal" class="link" target="_blank">
+                    <span class="main">ammo.lol/federal</span>
+                </a>
+                <a href="https://federal.wtf" class="link" target="_blank">
+                    <span class="main">federal.wtf</span>
+                </a>
             </div>
         </div>
         
@@ -342,7 +377,7 @@
                     </div>
                 </div>
                 
-                <div class="tags" style="margin-top: 15px;">
+                <div class="tags" style="margin-top: 10px;">
                     <div class="tag">
                         <span class="name">moneyrun</span>
                         <span class="status sus">suspended</span>
