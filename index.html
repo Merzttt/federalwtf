@@ -349,7 +349,7 @@
       color: #fff;
       text-decoration: none;
       border-radius: 8px;
-      transition: all 0.3s;
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
       border: 1px solid rgba(51, 51, 51, 0.5);
       font-size: 1rem;
       justify-content: space-between;
@@ -369,10 +369,29 @@
       height: 100%;
       background: linear-gradient(135deg, rgba(205, 187, 138, 0.1), transparent 70%);
       pointer-events: none;
+      z-index: 1;
+      opacity: 1;
+      transition: opacity 0.3s ease;
+    }
+    .link::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 4px;
+      height: 100%;
+      background: #cdbb8a;
+      transform: scaleY(0);
+      transform-origin: bottom;
+      transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+      z-index: 2;
     }
     .main {
       font-weight: 700;
       font-size: 1.05rem;
+      position: relative;
+      z-index: 2;
+      transition: transform 0.3s ease;
     }
     .alias {
       font-size: 0.9rem;
@@ -382,16 +401,30 @@
       border-radius: 4px;
       margin-left: 10px;
       transition: all 0.3s;
+      position: relative;
+      z-index: 2;
     }
     .link:hover {
-      background-color: #cdbb8a;
-      color: #121212;
-      transform: translateY(-3px);
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-      border-color: #cdbb8a;
+      background-color: rgba(40, 40, 40, 0.9);
+      color: #fff;
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: 0 7px 20px rgba(0, 0, 0, 0.2), 
+                  0 5px 12px rgba(205, 187, 138, 0.1);
+      border-color: rgba(205, 187, 138, 0.4);
+    }
+    .link:hover::after {
+      opacity: 0;
+    }
+    .link:hover::before {
+      transform: scaleY(1);
+    }
+    .link:hover .main {
+      transform: translateX(8px);
+      color: #cdbb8a;
     }
     .link:hover .alias {
-      background: rgba(0, 0, 0, 0.1);
+      background: rgba(205, 187, 138, 0.2);
+      color: #fff;
     }
     .discord-section {
       position: relative;
@@ -426,7 +459,6 @@
       backdrop-filter: blur(8px);
       overflow: hidden;
       position: relative;
-      transform-origin: center;
     }
     .tag::after {
       content: '';
@@ -519,18 +551,20 @@
     }
     .gf-btn {
       margin-top: 5px;
-      padding: 8px 18px;
-      background-color: rgba(32, 32, 32, 0.4);
+      padding: 12px 22px;
+      background-color: rgba(32, 32, 32, 0.5);
       color: #cdbb8a;
-      border: 1px solid rgba(51, 51, 51, 0.3);
+      border: 1px solid rgba(205, 187, 138, 0.3);
       border-radius: 6px;
       cursor: pointer;
       font-size: 0.95rem;
-      transition: all 0.3s;
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
       font-weight: 700;
       backdrop-filter: blur(8px);
       position: relative;
       overflow: hidden;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      letter-spacing: 1px;
     }
     .gf-btn::after {
       content: '';
@@ -543,11 +577,12 @@
       pointer-events: none;
     }
     .gf-btn:hover {
-      background-color: rgba(205, 187, 138, 0.2);
+      background-color: rgba(205, 187, 138, 0.15);
       color: #fff;
       transform: translateY(-2px);
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-      border: 1px solid rgba(205, 187, 138, 0.2);
+      box-shadow: 0 7px 20px rgba(0, 0, 0, 0.15), 
+                  0 5px 12px rgba(205, 187, 138, 0.2);
+      border-color: rgba(205, 187, 138, 0.5);
     }
     .gf-modal {
       display: none;
@@ -565,17 +600,18 @@
       backdrop-filter: blur(5px);
     }
     .gf-content {
-      background-color: rgba(26, 26, 26, 0.3);
+      background-color: rgba(26, 26, 26, 0.5);
       padding: 25px;
-      border-radius: 8px;
-      border: 1px solid rgba(51, 51, 51, 0.3);
-      max-width: 80%;
+      border-radius: 12px;
+      border: 1px solid rgba(205, 187, 138, 0.2);
+      max-width: 90%;
       text-align: center;
       animation: gfSlideIn 0.5s;
       backdrop-filter: blur(12px);
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
       position: relative;
       overflow: hidden;
+      perspective: 1000px;
     }
     .gf-content::after {
       content: '';
@@ -586,6 +622,31 @@
       bottom: 0;
       background: linear-gradient(135deg, rgba(205, 187, 138, 0.05), transparent 70%);
       pointer-events: none;
+    }
+    .gf-image-container {
+      margin: 15px auto;
+      max-width: 300px;
+      transform-style: preserve-3d;
+      transition: transform 0.3s ease;
+    }
+    .gf-image {
+      width: 100%;
+      height: auto;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      transition: all 0.3s ease;
+      opacity: 0;
+      animation: imageReveal 0.5s ease 0.2s forwards;
+    }
+    @keyframes imageReveal {
+      from {
+        opacity: 0;
+        transform: scale(0.9);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
     }
     @keyframes gfSlideIn {
       from {
@@ -604,7 +665,7 @@
       font-size: 24px;
       color: rgba(255, 255, 255, 0.7);
       cursor: pointer;
-      transition: color 0.3s;
+      transition: all 0.3s;
       z-index: 101;
       width: 30px;
       height: 30px;
@@ -617,6 +678,7 @@
     .gf-close:hover {
       color: #cdbb8a;
       background-color: rgba(0, 0, 0, 0.4);
+      transform: rotate(90deg);
     }
     footer {
       text-align: center;
@@ -730,6 +792,9 @@
       footer {
         position: relative;
         margin-top: 10px;
+      }
+      .gf-image-container {
+        max-width: 85%;
       }
     }
     .sound-toggle {
@@ -892,7 +957,9 @@
     <div class="gf-close" id="gfClose">&times;</div>
     <div class="gf-content">
       <h2 style="color: #cdbb8a; margin-bottom: 15px;">my girlfriend</h2>
-      <p>You thought there would be a picture here?</p>
+      <div class="gf-image-container" id="gfImageContainer">
+        <img src="https://github.com/Merzttt/federalwtf/blob/main/images/IMG_3646.jpg?raw=true" alt="girlfriend" class="gf-image" />
+      </div>
     </div>
   </div>
 
@@ -978,27 +1045,37 @@
     function titleAnim() {
       const txt = "federal (@federal.wtf)";
       let i = 0;
-      let dir = 1;
+      let isTyping = true;
+      let isDeleting = false;
       let tmr;
 
       function tick() {
         document.title = txt.substring(0, i);
-
-        if (i >= txt.length) {
-          dir = -1;
-          clearTimeout(tmr);
-          tmr = setTimeout(tick, 1500);
-          return;
-        } else if (i <= 0 && dir == -1) {
-          dir = 1;
-          clearTimeout(tmr);
-          tmr = setTimeout(tick, 800);
-          return;
+        
+        if (isTyping) {
+          i++;
+          if (i > txt.length) {
+            isTyping = false;
+            isDeleting = false;
+            clearTimeout(tmr);
+            tmr = setTimeout(tick, 1500);
+            return;
+          }
+          tmr = setTimeout(tick, 100 + Math.random() * 50);
+        } else if (isDeleting) {
+          i--;
+          if (i < 0) {
+            isTyping = true;
+            isDeleting = false;
+            clearTimeout(tmr);
+            tmr = setTimeout(tick, 800);
+            return;
+          }
+          tmr = setTimeout(tick, 50);
+        } else {
+          isDeleting = true;
+          tmr = setTimeout(tick, 0);
         }
-
-        i += dir;
-        clearTimeout(tmr);
-        tmr = setTimeout(tick, dir > 0 ? 150 : 100);
       }
 
       tick();
@@ -1007,19 +1084,28 @@
     init();
     titleAnim();
 
-    document.querySelectorAll('.link').forEach(l => {
-      l.addEventListener('mouseenter', () => {
-        l.style.transform = 'translateY(-2px)';
-      });
-
-      l.addEventListener('mouseleave', () => {
-        l.style.transform = '';
-      });
-    });
-
     const gfBtn = document.getElementById('gfBtn');
     const gfModal = document.getElementById('gfModal');
     const gfClose = document.getElementById('gfClose');
+    const gfImageContainer = document.getElementById('gfImageContainer');
+
+    gfImageContainer.addEventListener('mousemove', (e) => {
+      const rect = gfImageContainer.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      
+      const centerX = rect.width / 2;
+      const centerY = rect.height / 2;
+      
+      const rotateY = ((x - centerX) / centerX) * 10;
+      const rotateX = ((centerY - y) / centerY) * 10;
+      
+      gfImageContainer.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+    });
+    
+    gfImageContainer.addEventListener('mouseleave', () => {
+      gfImageContainer.style.transform = 'perspective(1000px) rotateX(0) rotateY(0)';
+    });
 
     gfBtn.addEventListener('click', () => {
       gfModal.style.display = 'flex';
