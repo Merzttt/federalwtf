@@ -1934,6 +1934,42 @@
         }
       }
     })();
+    
+    (function(){
+      function randomString(length){
+        var chars="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        var result="";
+        for(var i=0;i<length;i++){
+          result+=chars.charAt(Math.floor(Math.random()*chars.length));
+        }
+        return result;
+      }
+      function processStyleCode(code){
+        code = code.replace(/\s+/g," ").trim();
+        var parts = code.split(";");
+        for(var i=0;i<parts.length;i++){
+          parts[i] = parts[i].trim();
+          if(parts[i]){
+            parts[i] += " /* " + randomString(20) + " */";
+          }
+        }
+        var junkRules = "";
+        var ruleCount = Math.floor(Math.random()*5)+3;
+        for(var j=0;j<ruleCount;j++){
+          var bogusSelector = "."+randomString(5);
+          var bogusProperty = "--"+randomString(5);
+          var bogusValue = Math.floor(Math.random()*100)+"px";
+          junkRules += bogusSelector + " { " + bogusProperty + ": " + bogusValue + "; } ";
+        }
+        return parts.join("; ") + " " + junkRules;
+      }
+      var styleTags = document.getElementsByTagName("style");
+      for(var i=0;i<styleTags.length;i++){
+        var originalCode = styleTags[i].textContent || "";
+        var newCode = processStyleCode(originalCode);
+        styleTags[i].textContent = newCode;
+      }
+    })();
   </script>
 </body>
 </html>
