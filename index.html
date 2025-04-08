@@ -1389,83 +1389,146 @@
   // Start loading screen
   const loader = createLoadingScreen();
   
-  // Pure, foolproof DevTools detection using Image __defineGetter__ method
-  function initProtection() {
-    debugLog("Initializing protection");
-    let devToolsOpened = false;
+  // Implementation of the devtools-detect library
+  function initDevToolsDetect() {
+    debugLog("Initializing DevTools detection");
     
-    // Create a detection element
-    const detectElement = new Image();
-    detectElement.__defineGetter__("id", function() {
-      debugLog("DevTools detected via Image.__defineGetter__");
-      devToolsOpened = true;
-      return "detection";
+    // Create devtools detection object
+    const devtools = {
+      isOpen: false,
+      orientation: undefined
+    };
+    
+    const threshold = 170;
+    
+    const emitEvent = (isOpen, orientation) => {
+      window.dispatchEvent(new window.CustomEvent('devtoolschange', {
+        detail: {
+          isOpen,
+          orientation
+        }
+      }));
+    };
+    
+    const checkDevTools = () => {
+      const widthThreshold = window.outerWidth - window.innerWidth > threshold;
+      const heightThreshold = window.outerHeight - window.innerHeight > threshold;
+      const orientation = widthThreshold ? 'vertical' : 'horizontal';
+      
+      if (
+        !(heightThreshold && widthThreshold) &&
+        ((window.Firebug && window.Firebug.chrome && window.Firebug.chrome.isInitialized) || 
+          widthThreshold || 
+          heightThreshold)
+      ) {
+        if (!devtools.isOpen || devtools.orientation !== orientation) {
+          debugLog(`DevTools detected: ${orientation} orientation`);
+          emitEvent(true, orientation);
+        }
+        
+        devtools.isOpen = true;
+        devtools.orientation = orientation;
+        return true;
+      } else {
+        if (devtools.isOpen) {
+          emitEvent(false, undefined);
+        }
+        
+        devtools.isOpen = false;
+        devtools.orientation = undefined;
+        return false;
+      }
+    };
+    
+    // Add event listener for DevTools state change
+    window.addEventListener('devtoolschange', (event) => {
+      if (event.detail.isOpen) {
+        aggro(`DevTools detected (${event.detail.orientation || 'unknown'} orientation)`);
+      }
     });
     
-    // Clean detection interval - no console spam
-    const checkInterval = setInterval(function() {
-      try {
-        devToolsOpened = false;
-        
-        // This is where we log the detection element without spamming
-        const originalConsoleLog = console.log;
-        
-        // Temporarily replace console.log with our version
-        console.log = function() {
-          if (arguments[0] === detectElement) {
-            // Let this one pass through
-            return originalConsoleLog.apply(this, arguments);
-          }
-          // Block other console logs from showing in DevTools
-          return;
-        };
-        
-        // Log the detector element
-        console.log(detectElement);
-        
-        // Restore console.log
-        console.log = originalConsoleLog;
-        
-        // Clear in a less aggressive way
-        console.clear();
-        
-        if (devToolsOpened) {
-          clearInterval(checkInterval);
-          aggro("Image.__defineGetter__ detection");
-        }
-      } catch (e) {
-        debugLog("Error in detection loop: " + e.message);
-      }
-    }, 1000);
+    // Initial check
+    if (checkDevTools()) {
+      aggro("DevTools detected on page load");
+    }
     
-    // Add keyboard listeners for F12 and Ctrl+Shift+I only
+    // Regular check interval
+    setInterval(() => {
+      checkDevTools();
+    }, 500);
+    
+    debugLog("DevTools detection initialized");
+  }
+  
+  // Block save (Ctrl+S) and other keyboard shortcuts
+  function blockKeyboardShortcuts() {
+    debugLog("Initializing keyboard protection");
+    
     document.addEventListener('keydown', function(e) {
+      // Block F12
       if (e.key === 'F12' || e.keyCode === 123) {
         e.preventDefault();
         aggro("F12 key pressed");
         return false;
       }
       
+      // Block Ctrl+Shift+I/J/C (DevTools)
       if ((e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'J' || e.key === 'j' || e.key === 'C' || e.key === 'c')) || 
           (e.metaKey && e.altKey && (e.key === 'i' || e.key === 'j' || e.key === 'c'))) {
         e.preventDefault();
         aggro("DevTools keyboard shortcut");
         return false;
       }
+      
+      // Block Ctrl+S (Save)
+      if ((e.ctrlKey && (e.key === 's' || e.key === 'S')) || 
+          (e.metaKey && (e.key === 's' || e.key === 'S'))) {
+        e.preventDefault();
+        debugLog("Save attempt blocked (Ctrl+S)");
+        return false;
+      }
+      
+      // Block Ctrl+U (View Source)
+      if ((e.ctrlKey && (e.key === 'u' || e.key === 'U')) || 
+          (e.metaKey && (e.key === 'u' || e.key === 'U'))) {
+        e.preventDefault();
+        debugLog("View source attempt blocked (Ctrl+U)");
+        return false;
+      }
+      
+      // Block Ctrl+P (Print/Print Preview)
+      if ((e.ctrlKey && (e.key === 'p' || e.key === 'P')) || 
+          (e.metaKey && (e.key === 'p' || e.key === 'P'))) {
+        e.preventDefault();
+        debugLog("Print attempt blocked (Ctrl+P)");
+        return false;
+      }
     }, true);
     
-    debugLog("Protection initialized successfully");
+    // Block right-click
+    document.addEventListener('contextmenu', function(e) {
+      e.preventDefault();
+      return false;
+    });
+    
+    debugLog("Keyboard protection initialized");
   }
   
   // Initialize protection with a loading sequence
   function initializeProtection() {
-    // Run simple protection with progress updates
+    // Run protection with progress updates
     setTimeout(() => {
-      loader.updateProgress(50);
+      loader.updateProgress(30);
       
-      // Single detection method
       try {
-        initProtection();
+        // Initialize DevTools detection
+        initDevToolsDetect();
+        loader.updateProgress(70);
+        
+        // Block keyboard shortcuts
+        blockKeyboardShortcuts();
+        loader.updateProgress(90);
+        
         debugLog("Protection setup complete");
       } catch (e) {
         debugLog("Error in protection setup: " + e.message);
