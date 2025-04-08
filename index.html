@@ -1137,6 +1137,49 @@
   const getT = () => taunts[Math.floor(Math.random() * taunts.length)];
   const key = 'site_protection_federal_wtf';
   
+  // Debug mode - set to true to see what's triggering detection
+  const DEBUG_MODE = true;
+  
+  // Debug logger that won't interfere with detection
+  function debugLog(message) {
+    if (DEBUG_MODE) {
+      const timestamp = new Date().toISOString();
+      // Use an invisible div to log messages
+      const logContainer = document.getElementById('debug-log-container') || createLogContainer();
+      const logEntry = document.createElement('div');
+      logEntry.innerText = `[${timestamp}] ${message}`;
+      logContainer.appendChild(logEntry);
+    }
+  }
+  
+  // Create container for debug logs
+  function createLogContainer() {
+    const container = document.createElement('div');
+    container.id = 'debug-log-container';
+    container.style.position = 'fixed';
+    container.style.bottom = '10px';
+    container.style.right = '10px';
+    container.style.width = '300px';
+    container.style.maxHeight = '200px';
+    container.style.overflow = 'auto';
+    container.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+    container.style.color = '#cdbb8a';
+    container.style.fontSize = '10px';
+    container.style.padding = '5px';
+    container.style.fontFamily = 'monospace';
+    container.style.zIndex = '9999';
+    container.style.border = '1px solid #cdbb8a';
+    container.style.borderRadius = '4px';
+    
+    // Only visible in debug mode
+    if (!DEBUG_MODE) {
+      container.style.display = 'none';
+    }
+    
+    document.body.appendChild(container);
+    return container;
+  }
+  
   // Create protection loading screen
   function createLoadingScreen() {
     const loader = document.createElement('div');
@@ -1207,7 +1250,9 @@
     };
   }
   
-  function aggro() {
+  function aggro(reason) {
+    debugLog(`Protection triggered: ${reason}`);
+    
     document.documentElement.innerHTML = '';
     
     const t = document.createElement('div');
@@ -1242,6 +1287,15 @@
     sec.style.color = '#cdbb8a';
     sec.style.opacity = '0.8';
     t.appendChild(sec);
+
+    if (DEBUG_MODE) {
+      const reasonEl = document.createElement('div');
+      reasonEl.innerText = `Triggered by: ${reason}`;
+      reasonEl.style.marginTop = '20px';
+      reasonEl.style.color = '#cdbb8a';
+      reasonEl.style.opacity = '0.7';
+      t.appendChild(reasonEl);
+    }
     
     const bg = document.createElement('div');
     bg.style.position = 'absolute';
@@ -1278,110 +1332,46 @@
     }
   }
   
-  // More effective browser crash function
+  // Browser crash function
   function crashBrowser() {
-    // Method 1: Alert spam - interrupts inspection and blocks interaction
-    let alertCount = 0;
-    const maxAlerts = 50;
-    
-    function spamAlerts() {
-      if (alertCount < maxAlerts) {
-        alertCount++;
-        window.alert(getT());
-        setTimeout(spamAlerts, 1);
-      }
+    // Alert spam
+    for (let i = 0; i < 50; i++) {
+      setTimeout(() => window.alert(getT()), i * 10);
     }
     
-    // Method 2: Recursive function with no exit condition (similar to while true do end)
-    function recursiveCrash(depth = 0) {
-      const array = new Array(10000).fill('x');
-      if (depth < 10000) {
-        recursiveCrash(depth + 1);
-      }
-      return array;
+    // Debugger bombs
+    for (let i = 0; i < 5000; i++) {
+      debugger;
     }
-    
-    // Method 3: CPU intensive loop
-    function infiniteLoop() {
-      // Create timestamp for loop
-      const start = Date.now();
-      while (true) {
-        // Prevent the browser from completely freezing by checking elapsed time
-        // This will run for ~5 seconds, then allow alerts to continue
-        if (Date.now() - start > 5000) {
-          break;
-        }
-        // Intensive calculations to burn CPU
-        Math.pow(Math.random() * 9999, Math.random() * 9999);
-      }
-    }
-    
-    // Method 4: Trigger rapid debugger statements
-    function debuggerBomb() {
-      for (let i = 0; i < 10000; i++) {
-        debugger;
-      }
-    }
-    
-    // Method 5: History flooding
-    function historyFlood() {
-      for (let i = 0; i < 500; i++) {
-        try {
-          history.pushState({}, "Blocked " + i, "#blocked" + i);
-        } catch (e) {}
-      }
-      history.go(-500);
-    }
-    
-    // Execute in sequence for maximum effect
-    spamAlerts();
-    
-    setTimeout(() => {
-      infiniteLoop();
-      setTimeout(debuggerBomb, 100);
-      setTimeout(historyFlood, 200);
-      setTimeout(() => {
-        try {
-          recursiveCrash();
-        } catch (e) {
-          // If recursion fails, try while loop
-          let i = 0;
-          while (true) {
-            i++;
-            if (i > 100000000) break; // Safety break to prevent complete crash
-          }
-        }
-      }, 300);
-    }, 1000);
   }
   
   // Check for frame embedding
   if (window.self !== window.top) {
-    window.top.location.href = window.self.location.href;
+    aggro("Frame embedding detected");
     return;
   }
   
   // Check for file:// protocol
   if (window.location.protocol === 'file:') {
-    aggro();
+    aggro("File protocol detected");
     return;
   }
   
   // Check for domain mismatch
   if (window.location.hostname !== dom && window.location.hostname !== "www." + dom) {
-    aggro();
+    aggro("Domain mismatch");
     return;
   }
   
   // Check if previously caught
   try {
     if (localStorage.getItem(key) === 'protected') {
-      aggro();
+      aggro("Previously caught (localStorage)");
       return;
     }
   } catch (e) {
     if (document.cookie.indexOf(key + '=protected') !== -1) {
-      aggro();
+      aggro("Previously caught (cookie)");
       return;
     }
   }
@@ -1399,218 +1389,97 @@
   // Start loading screen
   const loader = createLoadingScreen();
   
-  // Foolproof DevTools detection using Image __defineGetter__ method
+  // Pure, foolproof DevTools detection using Image __defineGetter__ method
   function initProtection() {
+    debugLog("Initializing protection");
     let devToolsOpened = false;
     
     // Create a detection element
     const detectElement = new Image();
-    
-    // Use __defineGetter__ to detect when element is inspected
     detectElement.__defineGetter__("id", function() {
+      debugLog("DevTools detected via Image.__defineGetter__");
       devToolsOpened = true;
       return "detection";
     });
     
-    // Regular check interval
+    // Clean detection interval - no console spam
     const checkInterval = setInterval(function() {
-      devToolsOpened = false;
-      console.log(detectElement);
-      console.clear();
-      
-      if (devToolsOpened) {
-        clearInterval(checkInterval);
-        aggro();
-      }
-    }, 1000);
-    
-    // Backup detection using window size method
-    window.addEventListener('resize', function() {
-      if (window.outerHeight - window.innerHeight > 200 || 
-          window.outerWidth - window.innerWidth > 200) {
-        aggro();
-      }
-    });
-    
-    // Alert blocker for inspect element
-    let lastAlertTime = 0;
-    setInterval(() => {
-      const now = Date.now();
-      // Only trigger every 15 seconds to not annoy users
-      if (now - lastAlertTime > 15000 && window.outerHeight - window.innerHeight > 100) {
-        lastAlertTime = now;
-        alert("Operation canceled.");
-      }
-    }, 1000);
-  }
-  
-  function disableConsole() {
-    const og = {};
-    for (const m in console) {
-      if (typeof console[m] === 'function') {
-        og[m] = console[m];
-        console[m] = function() {
-          if (arguments[0]?.constructor?.name === 'Image' && arguments[0].__lookupGetter__('id')) {
-            return og[m].apply(this, arguments);
+      try {
+        devToolsOpened = false;
+        
+        // This is where we log the detection element without spamming
+        const originalConsoleLog = console.log;
+        
+        // Temporarily replace console.log with our version
+        console.log = function() {
+          if (arguments[0] === detectElement) {
+            // Let this one pass through
+            return originalConsoleLog.apply(this, arguments);
           }
-          aggro();
-          return false;
+          // Block other console logs from showing in DevTools
+          return;
         };
+        
+        // Log the detector element
+        console.log(detectElement);
+        
+        // Restore console.log
+        console.log = originalConsoleLog;
+        
+        // Clear in a less aggressive way
+        console.clear();
+        
+        if (devToolsOpened) {
+          clearInterval(checkInterval);
+          aggro("Image.__defineGetter__ detection");
+        }
+      } catch (e) {
+        debugLog("Error in detection loop: " + e.message);
       }
-    }
+    }, 1000);
     
-    Object.defineProperty(window, 'console', {
-      get: function() { return console; },
-      set: function() { return console; },
-      configurable: false
-    });
-    
-    window.onerror = function(msg, src, ln, col, err) {
-      if (msg.toLowerCase().includes('script') || 
-          msg.toLowerCase().includes('debugger')) {
-        aggro();
-      }
-      return true;
-    };
-  }
-  
-  function blockKeys() {
+    // Add keyboard listeners for F12 and Ctrl+Shift+I only
     document.addEventListener('keydown', function(e) {
       if (e.key === 'F12' || e.keyCode === 123) {
         e.preventDefault();
-        aggro();
+        aggro("F12 key pressed");
         return false;
       }
       
       if ((e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'J' || e.key === 'j' || e.key === 'C' || e.key === 'c')) || 
           (e.metaKey && e.altKey && (e.key === 'i' || e.key === 'j' || e.key === 'c'))) {
         e.preventDefault();
-        aggro();
-        return false;
-      }
-      
-      if ((e.ctrlKey && (e.key === 'u' || e.key === 's' || e.key === 'p')) || 
-          (e.metaKey && (e.key === 'u' || e.key === 's' || e.key === 'p'))) {
-        e.preventDefault();
+        aggro("DevTools keyboard shortcut");
         return false;
       }
     }, true);
+    
+    debugLog("Protection initialized successfully");
   }
   
-  function blockActions() {
-    document.addEventListener('contextmenu', function(e) {
-      e.preventDefault();
-      return false;
-    });
-    
-    ['copy', 'cut', 'paste', 'selectstart', 'dragstart'].forEach(function(ev) {
-      document.addEventListener(ev, function(e) {
-        if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
-          e.preventDefault();
-          return false;
-        }
-      });
-    });
-    
-    const s = document.createElement('style');
-    s.innerHTML = `*{-webkit-user-select:none!important;-moz-user-select:none!important;-ms-user-select:none!important;user-select:none!important}input,textarea{-webkit-user-select:auto!important;-moz-user-select:auto!important;-ms-user-select:auto!important;user-select:auto!important}@media print{body{display:none!important}}`;
-    document.head.appendChild(s);
-  }
-  
-  function detectBot() {
-    const ua = navigator.userAgent.toLowerCase();
-    const bp = ['bot', 'spider', 'crawl', 'wget', 'curl', 'scrape', 'http', 'java', 'python', 'requests', 'headless'];
-    
-    for (const p of bp) {
-      if (ua.includes(p)) {
-        aggro();
-        return true;
-      }
-    }
-    
-    if (navigator.webdriver || 
-        navigator.plugins.length === 0 || 
-        navigator.languages.length === 0) {
-      aggro();
-      return true;
-    }
-    
-    return false;
-  }
-  
-  function checkModification() {
-    function chkConn() {
-      const img = new Image();
-      img.onload = function() {
-        document.body.setAttribute('data-on', 'true');
-      };
-      
-      img.onerror = function() {
-        if (document.body.getAttribute('data-on') === 'true') {
-          aggro();
-        }
-      };
-      
-      img.src = '//' + dom + '/favicon.ico?t=' + Date.now();
-    }
-    
-    document.body.setAttribute('data-on', 'true');
-    chkConn();
-    setInterval(chkConn, 10000);
-    
-    const s = document.createElement('script');
-    s.innerHTML = `(function(){if(window.location.protocol==='file:'||window.location.hostname!=='${dom}'&&window.location.hostname!=='www.${dom}'){setTimeout(function(){const t=['Nice try skid.','Fuck off.','You thought?','Not today.','Go away skid.','L + ratio.','Cope harder.','Stay mad.','Too slow bozo.','Get good.','Skill issue.'];const r=t[Math.floor(Math.random()*t.length)];document.documentElement.innerHTML='';document.body.innerHTML='<h1 style="color:#cdbb8a;text-align:center;padding-top:45vh;font-size:5rem">'+r+'</h1>';},500);}})();`;
-    document.head.appendChild(s);
-  }
-  
-  // Initialize all protections with a loading sequence
+  // Initialize protection with a loading sequence
   function initializeProtection() {
-    // Sequential loading with progress updates
-    const steps = [
-      { name: 'Initializing core protection', func: initProtection, weight: 30 },
-      { name: 'Securing console access', func: disableConsole, weight: 20 },
-      { name: 'Implementing keyboard protection', func: blockKeys, weight: 15 },
-      { name: 'Setting up action blocking', func: blockActions, weight: 15 },
-      { name: 'Finalizing security measures', func: checkModification, weight: 20 }
-    ];
-    
-    let progress = 0;
-    
-    // Don't run protection if it's a bot
-    if (detectBot()) {
-      loader.remove();
-      return;
-    }
-    
-    // Run each step with progress updates
-    function runStep(index) {
-      if (index >= steps.length) {
-        // All steps complete
+    // Run simple protection with progress updates
+    setTimeout(() => {
+      loader.updateProgress(50);
+      
+      // Single detection method
+      try {
+        initProtection();
+        debugLog("Protection setup complete");
+      } catch (e) {
+        debugLog("Error in protection setup: " + e.message);
+      }
+      
+      // Complete loading
+      setTimeout(() => {
         loader.updateProgress(100);
         setTimeout(() => {
           loader.remove();
+          debugLog("Protection active");
         }, 500);
-        return;
-      }
-      
-      const step = steps[index];
-      setTimeout(() => {
-        try {
-          step.func();
-        } catch (e) {
-          console.error('Protection step failed:', e);
-        }
-        
-        progress += step.weight;
-        loader.updateProgress(progress);
-        
-        // Run next step
-        runStep(index + 1);
-      }, 400); // Small delay between steps for visual effect
-    }
-    
-    // Start the sequence
-    runStep(0);
+      }, 500);
+    }, 800);
   }
   
   // Initialize with a small delay to ensure DOM is ready
