@@ -1289,72 +1289,71 @@
         if (pop) {
           pops.push(pop);
           
-          pop.document.write(`
-            <!DOCTYPE html>
-            <html>
-              <head>
-                <title>${t}</title>
-                <style>
-                  body {
-                    background-color: black;
-                    color: #cdbb8a;
-                    font-family: Consolas, monospace;
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    height: 100vh;
-                    margin: 0;
-                    overflow: hidden;
-                  }
-                  h1 {
-                    text-align: center;
-                    font-size: 24px;
-                  }
-                  .foot {
-                    position: absolute;
-                    bottom: 10px;
-                    width: 100%;
-                    text-align: center;
-                    font-size: 12px;
-                    opacity: 0.7;
-                  }
-                </style>
-              </head>
-              <body>
-                <h1>${t}</h1>
-                <div class="foot">Protected by Federal</div>
-                <script>
-                  let x = 0;
-                  let y = 0;
-                  let dx = 5;
-                  let dy = 5;
+          pop.document.write('<!DOCTYPE html>' +
+            '<html>' +
+              '<head>' +
+                '<title>' + t + '</title>' +
+                '<style>' +
+                  'body {' +
+                    'background-color: black;' +
+                    'color: #cdbb8a;' +
+                    'font-family: Consolas, monospace;' +
+                    'display: flex;' +
+                    'justify-content: center;' +
+                    'align-items: center;' +
+                    'height: 100vh;' +
+                    'margin: 0;' +
+                    'overflow: hidden;' +
+                  '}' +
+                  'h1 {' +
+                    'text-align: center;' +
+                    'font-size: 24px;' +
+                  '}' +
+                  '.foot {' +
+                    'position: absolute;' +
+                    'bottom: 10px;' +
+                    'width: 100%;' +
+                    'text-align: center;' +
+                    'font-size: 12px;' +
+                    'opacity: 0.7;' +
+                  '}' +
+                '</style>' +
+              '</head>' +
+              '<body>' +
+                '<h1>' + t + '</h1>' +
+                '<div class="foot">Protected by Federal</div>' +
+                '<script>' +
+                  'let x = 0;' +
+                  'let y = 0;' +
+                  'let dx = 5;' +
+                  'let dy = 5;' +
                   
-                  function move() {
-                    x += dx;
-                    y += dy;
+                  'function move() {' +
+                    'x += dx;' +
+                    'y += dy;' +
                     
-                    if (x <= 0 || x >= window.screen.availWidth - 300) {
-                      dx *= -1;
-                    }
-                    if (y <= 0 || y >= window.screen.availHeight - 200) {
-                      dy *= -1;
-                    }
+                    'if (x <= 0 || x >= window.screen.availWidth - 300) {' +
+                      'dx *= -1;' +
+                    '}' +
+                    'if (y <= 0 || y >= window.screen.availHeight - 200) {' +
+                      'dy *= -1;' +
+                    '}' +
                     
-                    window.moveTo(x, y);
-                    requestAnimationFrame(move);
-                  }
+                    'window.moveTo(x, y);' +
+                    'requestAnimationFrame(move);' +
+                  '}' +
                   
-                  move();
+                  'move();' +
                   
-                  window.onbeforeunload = function() {
-                    return "Nice try.";
-                  };
+                  'window.onbeforeunload = function() {' +
+                    'return "Nice try.";' +
+                  '};' +
                   
-                  document.addEventListener('contextmenu', e => e.preventDefault());
-                </script>
-              </body>
-            </html>
-          `);
+                  'document.addEventListener("contextmenu", e => e.preventDefault());' +
+                '</scr' + 'ipt>' +
+              '</body>' +
+            '</html>'
+          );
           
           pop.document.close();
         }
