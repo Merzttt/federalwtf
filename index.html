@@ -1663,24 +1663,6 @@
         }
       }
       
-      function protectViewSource() {
-        const meta = document.createElement('meta');
-        meta.httpEquiv = 'refresh';
-        meta.content = '0;url=https://federal.wtf/?blocked=viewsource';
-        document.head.appendChild(meta);
-        
-        if (window.location.protocol === 'view-source:') {
-          window.location.href = 'https://federal.wtf/?blocked=viewsource';
-        }
-        
-        if (window.location.href.includes('blocked=viewsource')) {
-          aggro('viewsource');
-          return true;
-        }
-        
-        return false;
-      }
-      
       if (window.self !== window.top) {
         aggro("frame");
         return;
@@ -1693,10 +1675,6 @@
       
       if (window.location.hostname !== dom && window.location.hostname !== "www." + dom) {
         aggro("domain");
-        return;
-      }
-      
-      if (protectViewSource()) {
         return;
       }
       
