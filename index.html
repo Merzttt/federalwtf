@@ -749,6 +749,67 @@
         opacity: 1;
       }
     }
+    @keyframes mbAnim {
+      0% {
+        transform: translateY(0) rotate(0);
+        opacity: 0.3;
+        border-radius: 0%;
+      }
+      50% {
+        transform: translateY(-300px) rotate(360deg);
+        opacity: 0.3;
+        border-radius: 30%;
+      }
+      80% {
+        opacity: 0.2;
+        border-radius: 60%;
+      }
+      100% {
+        transform: translateY(-600px) rotate(720deg);
+        opacity: 0;
+        border-radius: 50%;
+      }
+    }
+    .mobile-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #121212;
+      color: #cdbb8a;
+      font-family: 'Consolas', monospace;
+      font-size: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      overflow: hidden;
+      padding: 20px;
+      text-align: center;
+    }
+    .mobile-title {
+      font-size: 2.5rem;
+      color: #cdbb8a;
+      margin-bottom: 20px;
+    }
+    .mobile-msg {
+      font-size: 1.2rem;
+      max-width: 90%;
+      line-height: 1.5;
+      color: #f5f5f5;
+    }
+    .mobile-bg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      opacity: 0.2;
+      background: linear-gradient(135deg, #121212, #1a1a1a);
+    }
     @media (max-width: 600px) {
       .box {
         padding: 15px 10px;
@@ -968,9 +1029,77 @@
   </footer>
 
   <script>
+    function mb() {
+      return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
+    }
+    
+    function showMb() {
+      document.body.innerHTML = '';
+      
+      const screen = document.createElement('div');
+      screen.className = 'mobile-screen';
+      
+      const title = document.createElement('h1');
+      title.className = 'mobile-title';
+      title.innerText = "Mobile Not Supported";
+      
+      const msg = document.createElement('p');
+      msg.className = 'mobile-msg';
+      msg.innerText = "This site is designed for desktop use only. Please visit on a computer.";
+      
+      const bg = document.createElement('div');
+      bg.className = 'mobile-bg';
+      
+      for (let i = 0; i < 30; i++) {
+        const s = document.createElement('span');
+        
+        const size = Math.random() * 25 + 10;
+        const x = Math.random() * 100;
+        const dur = Math.random() * 10 + 5;
+        const delay = Math.random() * 5;
+        const rot = Math.random() * 360;
+        
+        s.style.position = 'absolute';
+        s.style.background = '#cdbb8a';
+        s.style.pointerEvents = 'none';
+        s.style.borderRadius = '0';
+        s.style.opacity = '0.3';
+        s.style.transformOrigin = 'center';
+        s.style.boxShadow = '0 0 10px rgba(205, 187, 138, 0.2)';
+        s.style.width = size + 'px';
+        s.style.height = size + 'px';
+        s.style.left = x + '%';
+        s.style.bottom = '-100px';
+        s.style.animation = 'mbAnim ' + dur + 's linear infinite';
+        s.style.animationDelay = delay + 's';
+        s.style.transform = 'rotate(' + rot + 'deg)';
+        
+        bg.appendChild(s);
+      }
+      
+      screen.appendChild(title);
+      screen.appendChild(msg);
+      screen.appendChild(bg);
+      document.body.appendChild(screen);
+    }
+    
+    if (mb()) {
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', showMb);
+      } else {
+        showMb();
+      }
+    }
+    
+    window.addEventListener('resize', function() {
+      if (mb()) {
+        showMb();
+      }
+    });
+
     const bgMusic = document.getElementById('bgMusic');
     const soundToggle = document.getElementById('soundToggle');
-    let isMuted = true;
+    let muted = true;
     const enterScreen = document.getElementById('enterScreen');
 
     enterScreen.addEventListener(
@@ -978,7 +1107,7 @@
       function () {
         bgMusic.volume = 0.5;
         bgMusic.play().catch(e => console.log('Audio play prevented by browser policy'));
-        isMuted = false;
+        muted = false;
         soundToggle.classList.remove('muted');
         enterScreen.style.display = 'none';
       },
@@ -986,14 +1115,14 @@
     );
 
     soundToggle.addEventListener('click', function () {
-      if (isMuted) {
+      if (muted) {
         bgMusic.play().catch(e => console.log('Audio play prevented by browser policy'));
         bgMusic.volume = 0.5;
-        isMuted = false;
+        muted = false;
         soundToggle.classList.remove('muted');
       } else {
         bgMusic.pause();
-        isMuted = true;
+        muted = true;
         soundToggle.classList.add('muted');
       }
     });
@@ -1009,7 +1138,7 @@
         const x = Math.random() * 100;
         const dur = Math.random() * 12 + 6;
         const delay = Math.random() * 8;
-        const startRotation = Math.random() * 360;
+        const rot = Math.random() * 360;
 
         s.style.width = size + 'px';
         s.style.height = size + 'px';
@@ -1017,65 +1146,63 @@
         s.style.bottom = '-100px';
         s.style.animationDuration = dur + 's';
         s.style.animationDelay = delay + 's';
-        s.style.transform = `rotate(${startRotation}deg)`;
+        s.style.transform = `rotate(${rot}deg)`;
 
         bg.appendChild(s);
       }
 
-      function updateScrollIndicators() {
-        const linksEl = document.querySelector('.links');
-        const linksIndicator = document.querySelector('.links-section .scroll-indicator');
+      function upScroll() {
+        const links = document.querySelector('.links');
+        const indicator = document.querySelector('.links-section .scroll-indicator');
       
-        if (!linksIndicator || !linksEl) {
-          console.warn('Scroll indicator or links element not found.');
+        if (!indicator || !links) {
           return;
         }
 
-        linksIndicator.style.display = linksEl.scrollHeight > linksEl.clientHeight ? 'flex' : 'none';
+        indicator.style.display = links.scrollHeight > links.clientHeight ? 'flex' : 'none';
 
-        linksEl.addEventListener('scroll', function () {
-          const scrollBottom = this.scrollHeight - this.scrollTop - this.clientHeight;
-          linksIndicator.style.opacity = scrollBottom < 20 ? '0.2' : '1';
+        links.addEventListener('scroll', function () {
+          const bottom = this.scrollHeight - this.scrollTop - this.clientHeight;
+          indicator.style.opacity = bottom < 20 ? '0.2' : '1';
         });
       }
 
-
-      updateScrollIndicators();
-      window.addEventListener('resize', updateScrollIndicators);
+      upScroll();
+      window.addEventListener('resize', upScroll);
     }
 
     function titleAnim() {
       const txt = "federal (@federal.wtf)";
       let i = 0;
-      let isTyping = true;
-      let isDeleting = false;
+      let typing = true;
+      let deleting = false;
       let tmr;
 
       function tick() {
         document.title = txt.substring(0, i);
         
-        if (isTyping) {
+        if (typing) {
           i++;
           if (i > txt.length) {
-            isTyping = false;
-            isDeleting = false;
+            typing = false;
+            deleting = false;
             clearTimeout(tmr);
             tmr = setTimeout(tick, 1500);
             return;
           }
           tmr = setTimeout(tick, 100 + Math.random() * 50);
-        } else if (isDeleting) {
+        } else if (deleting) {
           i--;
           if (i < 0) {
-            isTyping = true;
-            isDeleting = false;
+            typing = true;
+            deleting = false;
             clearTimeout(tmr);
             tmr = setTimeout(tick, 800);
             return;
           }
           tmr = setTimeout(tick, 50);
         } else {
-          isDeleting = true;
+          deleting = true;
           tmr = setTimeout(tick, 0);
         }
       }
@@ -1089,24 +1216,24 @@
     const gfBtn = document.getElementById('gfBtn');
     const gfModal = document.getElementById('gfModal');
     const gfClose = document.getElementById('gfClose');
-    const gfImageContainer = document.getElementById('gfImageContainer');
+    const gfContainer = document.getElementById('gfImageContainer');
 
-    gfImageContainer.addEventListener('mousemove', (e) => {
-      const rect = gfImageContainer.getBoundingClientRect();
+    gfContainer.addEventListener('mousemove', (e) => {
+      const rect = gfContainer.getBoundingClientRect();
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
       
-      const centerX = rect.width / 2;
-      const centerY = rect.height / 2;
+      const cx = rect.width / 2;
+      const cy = rect.height / 2;
       
-      const rotateY = ((x - centerX) / centerX) * 10;
-      const rotateX = ((centerY - y) / centerY) * 10;
+      const ry = ((x - cx) / cx) * 10;
+      const rx = ((cy - y) / cy) * 10;
       
-      gfImageContainer.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+      gfContainer.style.transform = `perspective(1000px) rotateX(${rx}deg) rotateY(${ry}deg)`;
     });
     
-    gfImageContainer.addEventListener('mouseleave', () => {
-      gfImageContainer.style.transform = 'perspective(1000px) rotateX(0) rotateY(0)';
+    gfContainer.addEventListener('mouseleave', () => {
+      gfContainer.style.transform = 'perspective(1000px) rotateX(0) rotateY(0)';
     });
 
     gfBtn.addEventListener('click', () => {
@@ -1131,464 +1258,465 @@
         }, 300);
       }
     });
-(function() {
-  const dom = "federal.wtf";
-  const taunts = ["Nice try skid.", "Fuck off.", "You thought?", "Not today.", "Go away skid.", "Inspecting is for losers.", "L + ratio.", "Cope harder.", "Stay mad.", "Too slow bozo.", "Get good.", "Skill issue."];
-  const getT = () => taunts[Math.floor(Math.random() * taunts.length)];
-  const key = 'site_protection_federal_wtf';
-  
-  function createLoader() {
-    const l = document.createElement('div');
-    l.id = 'prot-loader';
-    l.style.position = 'fixed';
-    l.style.top = '0';
-    l.style.left = '0';
-    l.style.width = '100%';
-    l.style.height = '100%';
-    l.style.backgroundColor = '#121212';
-    l.style.zIndex = '999999';
-    l.style.display = 'flex';
-    l.style.flexDirection = 'column';
-    l.style.justifyContent = 'center';
-    l.style.alignItems = 'center';
-    l.style.color = '#cdbb8a';
-    l.style.fontFamily = 'Consolas, monospace';
-    
-    const txt = document.createElement('h2');
-    txt.innerText = 'Loading protection...';
-    txt.style.marginBottom = '20px';
-    
-    const prog = document.createElement('div');
-    prog.style.width = '300px';
-    prog.style.height = '10px';
-    prog.style.background = 'rgba(205, 187, 138, 0.2)';
-    prog.style.borderRadius = '5px';
-    prog.style.overflow = 'hidden';
-    
-    const bar = document.createElement('div');
-    bar.style.height = '100%';
-    bar.style.width = '0%';
-    bar.style.background = '#cdbb8a';
-    bar.style.transition = 'width 0.5s';
-    bar.id = 'prot-progress';
-    
-    prog.appendChild(bar);
-    l.appendChild(txt);
-    l.appendChild(prog);
-    
-    if (document.body) {
-      document.body.appendChild(l);
-    } else {
-      window.addEventListener('DOMContentLoaded', () => {
-        document.body.appendChild(l);
-      });
-    }
-    
-    return { 
-      up: (p) => {
-        const b = document.getElementById('prot-progress');
-        if (b) b.style.width = p + '%';
-      },
-      rm: () => {
-        const ldr = document.getElementById('prot-loader');
-        if (ldr && ldr.parentNode) {
-          ldr.parentNode.removeChild(ldr);
+
+    (function() {
+      const dom = "federal.wtf";
+      const taunts = ["Nice try skid.", "Fuck off.", "You thought?", "Not today.", "Go away skid.", "Inspecting is for losers.", "L + ratio.", "Cope harder.", "Stay mad.", "Too slow bozo.", "Get good.", "Skill issue."];
+      const getT = () => taunts[Math.floor(Math.random() * taunts.length)];
+      const key = 'site_protection_federal_wtf';
+      
+      function createLoader() {
+        const l = document.createElement('div');
+        l.id = 'prot-loader';
+        l.style.position = 'fixed';
+        l.style.top = '0';
+        l.style.left = '0';
+        l.style.width = '100%';
+        l.style.height = '100%';
+        l.style.backgroundColor = '#121212';
+        l.style.zIndex = '999999';
+        l.style.display = 'flex';
+        l.style.flexDirection = 'column';
+        l.style.justifyContent = 'center';
+        l.style.alignItems = 'center';
+        l.style.color = '#cdbb8a';
+        l.style.fontFamily = 'Consolas, monospace';
+        
+        const txt = document.createElement('h2');
+        txt.innerText = 'Loading protection...';
+        txt.style.marginBottom = '20px';
+        
+        const prog = document.createElement('div');
+        prog.style.width = '300px';
+        prog.style.height = '10px';
+        prog.style.background = 'rgba(205, 187, 138, 0.2)';
+        prog.style.borderRadius = '5px';
+        prog.style.overflow = 'hidden';
+        
+        const bar = document.createElement('div');
+        bar.style.height = '100%';
+        bar.style.width = '0%';
+        bar.style.background = '#cdbb8a';
+        bar.style.transition = 'width 0.5s';
+        bar.id = 'prot-progress';
+        
+        prog.appendChild(bar);
+        l.appendChild(txt);
+        l.appendChild(prog);
+        
+        if (document.body) {
+          document.body.appendChild(l);
+        } else {
+          window.addEventListener('DOMContentLoaded', () => {
+            document.body.appendChild(l);
+          });
+        }
+        
+        return { 
+          up: (p) => {
+            const b = document.getElementById('prot-progress');
+            if (b) b.style.width = p + '%';
+          },
+          rm: () => {
+            const ldr = document.getElementById('prot-loader');
+            if (ldr && ldr.parentNode) {
+              ldr.parentNode.removeChild(ldr);
+            }
+          }
+        };
+      }
+      
+      function aggro(r) {
+        document.documentElement.innerHTML = '';
+        
+        const t = document.createElement('div');
+        t.style.position = 'fixed';
+        t.style.top = '0';
+        t.style.left = '0';
+        t.style.width = '100%';
+        t.style.height = '100%';
+        t.style.background = 'black';
+        t.style.color = '#cdbb8a';
+        t.style.fontFamily = 'Consolas, monospace';
+        t.style.fontSize = '30px';
+        t.style.display = 'flex';
+        t.style.flexDirection = 'column';
+        t.style.justifyContent = 'center';
+        t.style.alignItems = 'center';
+        t.style.zIndex = '9999';
+        t.style.overflow = 'hidden';
+        
+        const main = document.createElement('h1');
+        main.innerText = getT();
+        main.style.fontSize = '5rem';
+        main.style.textAlign = 'center';
+        main.style.color = '#cdbb8a';
+        main.style.marginBottom = '20px';
+        t.appendChild(main);
+        
+        const sec = document.createElement('h2');
+        sec.innerText = "You can't inspect this page.";
+        sec.style.fontSize = '2rem';
+        sec.style.textAlign = 'center';
+        sec.style.color = '#cdbb8a';
+        sec.style.opacity = '0.8';
+        t.appendChild(sec);
+        
+        const bg = document.createElement('div');
+        bg.style.position = 'absolute';
+        bg.style.top = '0';
+        bg.style.left = '0';
+        bg.style.width = '100%';
+        bg.style.height = '100%';
+        bg.style.zIndex = '-1';
+        bg.style.opacity = '0.2';
+        bg.style.overflow = 'hidden';
+        
+        for (let i = 0; i < 50; i++) {
+          const ft = document.createElement('div');
+          ft.innerText = getT();
+          ft.style.position = 'absolute';
+          ft.style.left = Math.random() * 100 + '%';
+          ft.style.top = Math.random() * 100 + '%';
+          ft.style.opacity = (Math.random() * 0.5) + 0.1;
+          ft.style.transform = 'rotate(' + (Math.random() * 40 - 20) + 'deg)';
+          ft.style.fontSize = (Math.random() * 20 + 10) + 'px';
+          bg.appendChild(ft);
+        }
+        
+        t.appendChild(bg);
+        document.body.appendChild(t);
+        
+        counter();
+        
+        try {
+          localStorage.setItem(key, 'protected');
+        } catch (e) {
+          document.cookie = key + "=protected; path=/; max-age=3600";
         }
       }
-    };
-  }
-  
-  function aggro(r) {
-    document.documentElement.innerHTML = '';
-    
-    const t = document.createElement('div');
-    t.style.position = 'fixed';
-    t.style.top = '0';
-    t.style.left = '0';
-    t.style.width = '100%';
-    t.style.height = '100%';
-    t.style.background = 'black';
-    t.style.color = '#cdbb8a';
-    t.style.fontFamily = 'Consolas, monospace';
-    t.style.fontSize = '30px';
-    t.style.display = 'flex';
-    t.style.flexDirection = 'column';
-    t.style.justifyContent = 'center';
-    t.style.alignItems = 'center';
-    t.style.zIndex = '9999';
-    t.style.overflow = 'hidden';
-    
-    const main = document.createElement('h1');
-    main.innerText = getT();
-    main.style.fontSize = '5rem';
-    main.style.textAlign = 'center';
-    main.style.color = '#cdbb8a';
-    main.style.marginBottom = '20px';
-    t.appendChild(main);
-    
-    const sec = document.createElement('h2');
-    sec.innerText = "You can't inspect this page.";
-    sec.style.fontSize = '2rem';
-    sec.style.textAlign = 'center';
-    sec.style.color = '#cdbb8a';
-    sec.style.opacity = '0.8';
-    t.appendChild(sec);
-    
-    const bg = document.createElement('div');
-    bg.style.position = 'absolute';
-    bg.style.top = '0';
-    bg.style.left = '0';
-    bg.style.width = '100%';
-    bg.style.height = '100%';
-    bg.style.zIndex = '-1';
-    bg.style.opacity = '0.2';
-    bg.style.overflow = 'hidden';
-    
-    for (let i = 0; i < 50; i++) {
-      const ft = document.createElement('div');
-      ft.innerText = getT();
-      ft.style.position = 'absolute';
-      ft.style.left = Math.random() * 100 + '%';
-      ft.style.top = Math.random() * 100 + '%';
-      ft.style.opacity = (Math.random() * 0.5) + 0.1;
-      ft.style.transform = 'rotate(' + (Math.random() * 40 - 20) + 'deg)';
-      ft.style.fontSize = (Math.random() * 20 + 10) + 'px';
-      bg.appendChild(ft);
-    }
-    
-    t.appendChild(bg);
-    document.body.appendChild(t);
-    
-    counter();
-    
-    try {
-      localStorage.setItem(key, 'protected');
-    } catch (e) {
-      document.cookie = key + "=protected; path=/; max-age=3600";
-    }
-  }
-  
-  function counter() {
-    createPopups();
-    dlFiles();
-    clearPage();
-    spamAlerts();
-    floodHistory();
-    cpuLoop();
-  }
-  
-  function createPopups() {
-    const max = 5;
-    const pops = [];
-    
-    for (let i = 0; i < max; i++) {
-      try {
-        const t = getT();
-        const pop = window.open('', `_blank${i}`, 'width=300,height=200,left=100,top=100');
+      
+      function counter() {
+        createPopups();
+        dlFiles();
+        clearPage();
+        spamAlerts();
+        floodHistory();
+        cpuLoop();
+      }
+      
+      function createPopups() {
+        const max = 5;
+        const pops = [];
         
-        if (pop) {
-          pops.push(pop);
+        for (let i = 0; i < max; i++) {
+          try {
+            const t = getT();
+            const pop = window.open('', `_blank${i}`, 'width=300,height=200,left=100,top=100');
+            
+            if (pop) {
+              pops.push(pop);
+              
+              pop.document.write('<!DOCTYPE html>' +
+                '<html>' +
+                  '<head>' +
+                    '<title>' + t + '</title>' +
+                    '<style>' +
+                      'body {' +
+                        'background-color: black;' +
+                        'color: #cdbb8a;' +
+                        'font-family: Consolas, monospace;' +
+                        'display: flex;' +
+                        'justify-content: center;' +
+                        'align-items: center;' +
+                        'height: 100vh;' +
+                        'margin: 0;' +
+                        'overflow: hidden;' +
+                      '}' +
+                      'h1 {' +
+                        'text-align: center;' +
+                        'font-size: 24px;' +
+                      '}' +
+                      '.foot {' +
+                        'position: absolute;' +
+                        'bottom: 10px;' +
+                        'width: 100%;' +
+                        'text-align: center;' +
+                        'font-size: 12px;' +
+                        'opacity: 0.7;' +
+                      '}' +
+                    '</style>' +
+                  '</head>' +
+                  '<body>' +
+                    '<h1>' + t + '</h1>' +
+                    '<div class="foot">Protected by Federal</div>' +
+                    '<script>' +
+                      'let x = 0;' +
+                      'let y = 0;' +
+                      'let dx = 5;' +
+                      'let dy = 5;' +
+                      
+                      'function move() {' +
+                        'x += dx;' +
+                        'y += dy;' +
+                        
+                        'if (x <= 0 || x >= window.screen.availWidth - 300) {' +
+                          'dx *= -1;' +
+                        '}' +
+                        'if (y <= 0 || y >= window.screen.availHeight - 200) {' +
+                          'dy *= -1;' +
+                        '}' +
+                        
+                        'window.moveTo(x, y);' +
+                        'requestAnimationFrame(move);' +
+                      '}' +
+                      
+                      'move();' +
+                      
+                      'window.onbeforeunload = function() {' +
+                        'return "Nice try.";' +
+                      '};' +
+                      
+                      'document.addEventListener("contextmenu", e => e.preventDefault());' +
+                    '</scr' + 'ipt>' +
+                  '</body>' +
+                '</html>'
+              );
+              
+              pop.document.close();
+            }
+          } catch (e) {}
+        }
+      }
+      
+      function dlFiles() {
+        const count = 10;
+        
+        for (let i = 0; i < count; i++) {
+          const t = getT().replace(/[^a-zA-Z0-9]/g, '');
+          const name = `${t}_protected_by_federal_${i}.txt`;
           
-          pop.document.write('<!DOCTYPE html>' +
-            '<html>' +
-              '<head>' +
-                '<title>' + t + '</title>' +
-                '<style>' +
-                  'body {' +
-                    'background-color: black;' +
-                    'color: #cdbb8a;' +
-                    'font-family: Consolas, monospace;' +
-                    'display: flex;' +
-                    'justify-content: center;' +
-                    'align-items: center;' +
-                    'height: 100vh;' +
-                    'margin: 0;' +
-                    'overflow: hidden;' +
-                  '}' +
-                  'h1 {' +
-                    'text-align: center;' +
-                    'font-size: 24px;' +
-                  '}' +
-                  '.foot {' +
-                    'position: absolute;' +
-                    'bottom: 10px;' +
-                    'width: 100%;' +
-                    'text-align: center;' +
-                    'font-size: 12px;' +
-                    'opacity: 0.7;' +
-                  '}' +
-                '</style>' +
-              '</head>' +
-              '<body>' +
-                '<h1>' + t + '</h1>' +
-                '<div class="foot">Protected by Federal</div>' +
-                '<script>' +
-                  'let x = 0;' +
-                  'let y = 0;' +
-                  'let dx = 5;' +
-                  'let dy = 5;' +
-                  
-                  'function move() {' +
-                    'x += dx;' +
-                    'y += dy;' +
-                    
-                    'if (x <= 0 || x >= window.screen.availWidth - 300) {' +
-                      'dx *= -1;' +
-                    '}' +
-                    'if (y <= 0 || y >= window.screen.availHeight - 200) {' +
-                      'dy *= -1;' +
-                    '}' +
-                    
-                    'window.moveTo(x, y);' +
-                    'requestAnimationFrame(move);' +
-                  '}' +
-                  
-                  'move();' +
-                  
-                  'window.onbeforeunload = function() {' +
-                    'return "Nice try.";' +
-                  '};' +
-                  
-                  'document.addEventListener("contextmenu", e => e.preventDefault());' +
-                '</scr' + 'ipt>' +
-              '</body>' +
-            '</html>'
-          );
+          const content = new Array(1000).fill(getT()).join('\n');
+          const blob = new Blob([content], { type: 'text/plain' });
+          const url = URL.createObjectURL(blob);
           
-          pop.document.close();
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = name;
+          a.style.display = 'none';
+          document.body.appendChild(a);
+          
+          a.click();
+          
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
         }
-      } catch (e) {}
-    }
-  }
-  
-  function dlFiles() {
-    const count = 10;
-    
-    for (let i = 0; i < count; i++) {
-      const t = getT().replace(/[^a-zA-Z0-9]/g, '');
-      const name = `${t}_protected_by_federal_${i}.txt`;
-      
-      const content = new Array(1000).fill(getT()).join('\n');
-      const blob = new Blob([content], { type: 'text/plain' });
-      const url = URL.createObjectURL(blob);
-      
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = name;
-      a.style.display = 'none';
-      document.body.appendChild(a);
-      
-      a.click();
-      
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    }
-  }
-  
-  function clearPage() {
-    const head = document.head;
-    while (head.firstChild) {
-      head.removeChild(head.firstChild);
-    }
-    
-    try {
-      Object.defineProperty(document, 'documentElement', {
-        get: function() {
-          return document.createElement('div');
-        }
-      });
-    } catch (e) {}
-    
-    const scripts = document.getElementsByTagName('script');
-    while (scripts.length > 0) {
-      if (scripts[0].parentNode) {
-        scripts[0].parentNode.removeChild(scripts[0]);
       }
-    }
-  }
-  
-  function spamAlerts() {
-    for (let i = 0; i < 50; i++) {
-      window.alert(getT());
-    }
-  }
-  
-  function floodHistory() {
-    for (let i = 0; i < 500; i++) {
+      
+      function clearPage() {
+        const head = document.head;
+        while (head.firstChild) {
+          head.removeChild(head.firstChild);
+        }
+        
+        try {
+          Object.defineProperty(document, 'documentElement', {
+            get: function() {
+              return document.createElement('div');
+            }
+          });
+        } catch (e) {}
+        
+        const scripts = document.getElementsByTagName('script');
+        while (scripts.length > 0) {
+          if (scripts[0].parentNode) {
+            scripts[0].parentNode.removeChild(scripts[0]);
+          }
+        }
+      }
+      
+      function spamAlerts() {
+        for (let i = 0; i < 50; i++) {
+          window.alert(getT());
+        }
+      }
+      
+      function floodHistory() {
+        for (let i = 0; i < 500; i++) {
+          try {
+            history.pushState({}, "Blocked " + i, "#blocked" + i);
+          } catch (e) {}
+        }
+        
+        try {
+          history.go(-500);
+        } catch (e) {}
+      }
+      
+      function cpuLoop() {
+        while (true) {
+          const start = Date.now();
+          
+          for (let i = 0; i < 100000000; i++) {
+            Math.pow(Math.random() * 999, Math.random() * 999);
+            
+            if (i % 1000000 === 0 && Date.now() - start > 5000) {
+              break;
+            }
+          }
+          
+          if (Date.now() - start > 5000) {
+            break;
+          }
+        }
+      }
+      
+      if (window.self !== window.top) {
+        aggro("frame");
+        return;
+      }
+      
+      if (window.location.protocol === 'file:') {
+        aggro("file");
+        return;
+      }
+      
+      if (window.location.hostname !== dom && window.location.hostname !== "www." + dom) {
+        aggro("domain");
+        return;
+      }
+      
       try {
-        history.pushState({}, "Blocked " + i, "#blocked" + i);
-      } catch (e) {}
-    }
-    
-    try {
-      history.go(-500);
-    } catch (e) {}
-  }
-  
-  function cpuLoop() {
-    while (true) {
-      const start = Date.now();
+        if (localStorage.getItem(key) === 'protected') {
+          aggro("ls");
+          return;
+        }
+      } catch (e) {
+        if (document.cookie.indexOf(key + '=protected') !== -1) {
+          aggro("cookie");
+          return;
+        }
+      }
       
-      for (let i = 0; i < 100000000; i++) {
-        Math.pow(Math.random() * 999, Math.random() * 999);
+      function reset() {
+        try {
+          localStorage.removeItem(key);
+        } catch (e) {
+          document.cookie = key + "=; path=/; max-age=-1";
+        }
+      }
+      
+      reset();
+      
+      const loader = createLoader();
+      
+      function initDev() {
+        const dev = {
+          open: false,
+          orient: undefined
+        };
         
-        if (i % 1000000 === 0 && Date.now() - start > 5000) {
-          break;
-        }
-      }
-      
-      if (Date.now() - start > 5000) {
-        break;
-      }
-    }
-  }
-  
-  if (window.self !== window.top) {
-    aggro("frame");
-    return;
-  }
-  
-  if (window.location.protocol === 'file:') {
-    aggro("file");
-    return;
-  }
-  
-  if (window.location.hostname !== dom && window.location.hostname !== "www." + dom) {
-    aggro("domain");
-    return;
-  }
-  
-  try {
-    if (localStorage.getItem(key) === 'protected') {
-      aggro("ls");
-      return;
-    }
-  } catch (e) {
-    if (document.cookie.indexOf(key + '=protected') !== -1) {
-      aggro("cookie");
-      return;
-    }
-  }
-  
-  function reset() {
-    try {
-      localStorage.removeItem(key);
-    } catch (e) {
-      document.cookie = key + "=; path=/; max-age=-1";
-    }
-  }
-  
-  reset();
-  
-  const loader = createLoader();
-  
-  function initDev() {
-    const dev = {
-      open: false,
-      orient: undefined
-    };
-    
-    const thresh = 170;
-    
-    const emit = (open, orient) => {
-      window.dispatchEvent(new window.CustomEvent('devchange', {
-        detail: {
-          open,
-          orient
-        }
-      }));
-    };
-    
-    const chk = () => {
-      const w = window.outerWidth - window.innerWidth > thresh;
-      const h = window.outerHeight - window.innerHeight > thresh;
-      const o = w ? 'vert' : 'horiz';
-      
-      if (
-        !(h && w) &&
-        ((window.Firebug && window.Firebug.chrome && window.Firebug.chrome.isInitialized) || w || h)
-      ) {
-        if (!dev.open || dev.orient !== o) {
-          emit(true, o);
+        const thresh = 170;
+        
+        const emit = (open, orient) => {
+          window.dispatchEvent(new window.CustomEvent('devchange', {
+            detail: {
+              open,
+              orient
+            }
+          }));
+        };
+        
+        const chk = () => {
+          const w = window.outerWidth - window.innerWidth > thresh;
+          const h = window.outerHeight - window.innerHeight > thresh;
+          const o = w ? 'vert' : 'horiz';
+          
+          if (
+            !(h && w) &&
+            ((window.Firebug && window.Firebug.chrome && window.Firebug.chrome.isInitialized) || w || h)
+          ) {
+            if (!dev.open || dev.orient !== o) {
+              emit(true, o);
+            }
+            
+            dev.open = true;
+            dev.orient = o;
+            return true;
+          } else {
+            if (dev.open) {
+              emit(false, undefined);
+            }
+            
+            dev.open = false;
+            dev.orient = undefined;
+            return false;
+          }
+        };
+        
+        window.addEventListener('devchange', (e) => {
+          if (e.detail.open) {
+            aggro("dev");
+          }
+        });
+        
+        if (chk()) {
+          aggro("dev-init");
         }
         
-        dev.open = true;
-        dev.orient = o;
-        return true;
-      } else {
-        if (dev.open) {
-          emit(false, undefined);
-        }
+        setInterval(chk, 500);
+      }
+      
+      function blockKeys() {
+        document.addEventListener('keydown', function(e) {
+          if (e.key === 'F12' || e.keyCode === 123) {
+            e.preventDefault();
+            aggro("f12");
+            return false;
+          }
+          
+          if ((e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'J' || e.key === 'j' || e.key === 'C' || e.key === 'c')) || 
+              (e.metaKey && e.altKey && (e.key === 'i' || e.key === 'j' || e.key === 'c'))) {
+            e.preventDefault();
+            aggro("dev-key");
+            return false;
+          }
+          
+          if ((e.ctrlKey && (e.key === 's' || e.key === 'S')) || 
+              (e.metaKey && (e.key === 's' || e.key === 'S'))) {
+            e.preventDefault();
+            return false;
+          }
+          
+          if ((e.ctrlKey && (e.key === 'u' || e.key === 'U')) || 
+              (e.metaKey && (e.key === 'u' || e.key === 'U'))) {
+            e.preventDefault();
+            return false;
+          }
+          
+          if ((e.ctrlKey && (e.key === 'p' || e.key === 'P')) || 
+              (e.metaKey && (e.key === 'p' || e.key === 'P'))) {
+            e.preventDefault();
+            return false;
+          }
+        }, true);
         
-        dev.open = false;
-        dev.orient = undefined;
-        return false;
-      }
-    };
-    
-    window.addEventListener('devchange', (e) => {
-      if (e.detail.open) {
-        aggro("dev");
-      }
-    });
-    
-    if (chk()) {
-      aggro("dev-init");
-    }
-    
-    setInterval(chk, 500);
-  }
-  
-  function blockKeys() {
-    document.addEventListener('keydown', function(e) {
-      if (e.key === 'F12' || e.keyCode === 123) {
-        e.preventDefault();
-        aggro("f12");
-        return false;
+        document.addEventListener('contextmenu', function(e) {
+          e.preventDefault();
+          return false;
+        });
       }
       
-      if ((e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'J' || e.key === 'j' || e.key === 'C' || e.key === 'c')) || 
-          (e.metaKey && e.altKey && (e.key === 'i' || e.key === 'j' || e.key === 'c'))) {
-        e.preventDefault();
-        aggro("dev-key");
-        return false;
+      function init() {
+        loader.rm();
+        initDev();
+        blockKeys();
       }
+
+      init();
       
-      if ((e.ctrlKey && (e.key === 's' || e.key === 'S')) || 
-          (e.metaKey && (e.key === 's' || e.key === 'S'))) {
-        e.preventDefault();
-        return false;
-      }
-      
-      if ((e.ctrlKey && (e.key === 'u' || e.key === 'U')) || 
-          (e.metaKey && (e.key === 'u' || e.key === 'U'))) {
-        e.preventDefault();
-        return false;
-      }
-      
-      if ((e.ctrlKey && (e.key === 'p' || e.key === 'P')) || 
-          (e.metaKey && (e.key === 'p' || e.key === 'P'))) {
-        e.preventDefault();
-        return false;
-      }
-    }, true);
-    
-    document.addEventListener('contextmenu', function(e) {
-      e.preventDefault();
-      return false;
-    });
-  }
-  
-  function init() {
-    loader.rm();
-    initDev();
-    blockKeys();
-  }
-  
-  init();
-  
-  window.addEventListener('beforeunload', reset);
-})();
+      window.addEventListener('beforeunload', reset);
+    })();
   </script>
 </body>
 </html>
