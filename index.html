@@ -1719,45 +1719,106 @@
     })();
 
     (function(){
-      function obfuscateNumberLiteral(match) {
-        const num = parseFloat(match);
-        if (isNaN(num)) return match;
-    
-        if (num === 0) return "0";
-        
-        let a, b;
-        if (Number.isInteger(num)) {
-          a = Math.floor(Math.random() * (num - 1)) + 1;
-          b = num - a;
-        } else {
-          a = (Math.random() * num).toFixed(2);
-          b = (num - a).toFixed(2);
+      function randomArithmetic(n) {
+        if(n === 0) return "0";
+        const pattern = Math.floor(Math.random() * 4);
+        let a, b, c, expr;
+        switch(pattern) {
+          case 0:
+            if(n > 1) {
+              a = Math.floor(Math.random() * (n - 1)) + 1;
+              b = n - a;
+              expr = "(" + a + " + " + b + ")";
+            } else {
+              expr = n.toString();
+            }
+            break;
+          case 1:
+            a = n + Math.floor(Math.random() * 10) + 1;
+            b = a - n;
+            expr = "(" + a + " - " + b + ")";
+            break;
+          case 2:
+            let factors = [];
+            for(let i = 2; i <= Math.sqrt(n); i++){
+              if(n % i === 0) {
+                factors.push(i);
+              }
+            }
+            if(factors.length > 0) {
+              a = factors[Math.floor(Math.random() * factors.length)];
+              b = n / a;
+              expr = "(" + a + " * " + b + ")";
+            } else {
+              a = Math.floor(Math.random() * (n - 1)) + 1;
+              b = n - a;
+              expr = "(" + a + " + " + b + ")";
+            }
+            break;
+          case 3:
+            a = Math.floor(Math.random() * 10) + 1;
+            b = Math.floor(Math.random() * 10) + 1;
+            c = n - (a * b);
+            expr = "(" + a + " * " + b + " + " + c + ")";
+            break;
+          default:
+            expr = n.toString();
         }
-        return "(" + a + " + " + b + ")";
+        return expr;
       }
     
-      function addJunkCodeAfterLine(line) {
+      function obfuscateNumbers(line) {
+        return line.replace(/\b\d+(\.\d+)?\b/g, function(match) {
+          const num = parseFloat(match);
+          if(isNaN(num)) return match;
+          if(match.indexOf('.') !== -1) {
+             const intPart = Math.floor(num);
+             const frac = (num - intPart).toFixed(2);
+             return "(" + intPart + " + " + frac + ")";
+          } else {
+             return randomArithmetic(num);
+          }
+        });
+      }
+    
+      function generateJunkCode() {
+        const rnd = Math.floor(Math.random() * 1000);
+        let expr = randomArithmetic(rnd);
+        if(Math.random() < 0.5) {
+          expr = "(" + expr + " - 0)";
+        } else {
+          expr = "(" + expr + " * 1)";
+        }
+        return "void(" + expr + ");";
+      }
+    
+      function appendJunkAfterLine(line) {
         let junk = "";
         for (let i = 0; i < 3; i++) {
-          const rnd = Math.floor(Math.random() * 1000);
-          junk += "\nvoid(" + obfuscateNumberLiteral(String(rnd)) + ");";
+          junk += generateJunkCode();
         }
         return line + junk;
       }
-      
+    
+      function minifyCode(code) {
+        return code.replace(/\/\/.*\n/g, "").replace(/\s+/g, " ").trim();
+      }
+    
       function processCode(code) {
-        const lines = code.split("\n");
-        for (let i = 0; i < lines.length; i++) {
-          lines[i] = lines[i].replace(/\b\d+(\.\d+)?\b/g, obfuscateNumberLiteral);
-          lines[i] = addJunkCodeAfterLine(lines[i]);
+        let parts = code.split(";");
+        for (let i = 0; i < parts.length; i++) {
+          let line = parts[i].trim();
+          if(line === "") continue;
+          line = obfuscateNumbers(line);
+          parts[i] = appendJunkAfterLine(line);
         }
-        return lines.join("\n");
+        let newCode = parts.join(";");
+        return minifyCode(newCode);
       }
     
       const scripts = document.getElementsByTagName("script");
       for (let i = 0; i < scripts.length; i++){
         if (scripts[i].hasAttribute("src")) continue;
-    
         const originalCode = scripts[i].textContent;
         const newCode = processCode(originalCode);
         try {
