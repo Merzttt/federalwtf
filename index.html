@@ -1719,46 +1719,52 @@
     })();
     
     (function(){
+      function randomString(length){
+        const chars="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        let result="";
+        for(let i=0;i<length;i++){
+          result+=chars.charAt(Math.floor(Math.random()*chars.length));
+        }
+        return result;
+      }
+      function randomizeVariableNames(code){
+        const varRegex=/\b(var|let|const)\s+([a-zA-Z_$][a-zA-Z0-9_$]*)/g;
+        let mapping={};
+        code=code.replace(varRegex,(match,decl,name)=>{
+          if(!mapping[name]){ mapping[name]=randomString(8); }
+          return decl+" "+mapping[name];
+        });
+        for(const original in mapping){
+          const re=new RegExp("\\b"+original+"\\b","g");
+          code=code.replace(re,mapping[original]);
+        }
+        return code;
+      }
       function randomArithmetic(n){
         if(n===0)return"0";
         const pattern=Math.floor(Math.random()*4);
         let a,b,c,expr;
         switch(pattern){
           case 0:
-            if(n>1){
-              a=Math.floor(Math.random()*(n-1))+1;
-              b=n-a;
-              expr="("+a+" + "+b+")";
-            } else { expr=n.toString(); }
+            if(n>1){ a=Math.floor(Math.random()*(n-1))+1; b=n-a; expr="("+a+" + "+b+")"; }
+            else{ expr=n.toString(); }
             break;
           case 1:
-            a=n+Math.floor(Math.random()*10)+1;
-            b=a-n;
-            expr="("+a+" - "+b+")";
+            a=n+Math.floor(Math.random()*10)+1; b=a-n; expr="("+a+" - "+b+")";
             break;
           case 2:
             let factors=[];
             for(let i=2;i<=Math.sqrt(n);i++){
               if(n%i===0){ factors.push(i); }
             }
-            if(factors.length>0){
-              a=factors[Math.floor(Math.random()*factors.length)];
-              b=n/a;
-              expr="("+a+" * "+b+")";
-            } else {
-              a=Math.floor(Math.random()*(n-1))+1;
-              b=n-a;
-              expr="("+a+" + "+b+")";
-            }
+            if(factors.length>0){ a=factors[Math.floor(Math.random()*factors.length)]; b=n/a; expr="("+a+" * "+b+")"; }
+            else{ a=Math.floor(Math.random()*(n-1))+1; b=n-a; expr="("+a+" + "+b+")"; }
             break;
           case 3:
-            a=Math.floor(Math.random()*10)+1;
-            b=Math.floor(Math.random()*10)+1;
-            c=n-(a*b);
+            a=Math.floor(Math.random()*10)+1; b=Math.floor(Math.random()*10)+1; c=n-(a*b);
             expr="("+a+" * "+b+" + "+c+")";
             break;
-          default:
-            expr=n.toString();
+          default: expr=n.toString();
         }
         return expr;
       }
@@ -1766,40 +1772,38 @@
         return line.replace(/\b\d+(\.\d+)?\b/g,function(match){
           const num=parseFloat(match);
           if(isNaN(num))return match;
-          if(match.indexOf('.')!==-1){
-             const intPart=Math.floor(num);
-             const frac=(num-intPart).toFixed(2);
-             return "("+intPart+" + "+frac+")";
+          if(match.indexOf('.')!==-1){ const intPart=Math.floor(num); const frac=(num-intPart).toFixed(2);
+            return "("+intPart+" + "+frac+")";
           } else { return randomArithmetic(num); }
         });
       }
-      function generateJunkCode(){
+      function generateExtraOp(){
         const rnd=Math.floor(Math.random()*1000);
         let expr=randomArithmetic(rnd);
-        if(Math.random()<0.5){
-          expr="("+expr+" - 0)";
-        } else {
-          expr="("+expr+" * 1)";
+        expr=(Math.random()<0.5)?"("+expr+" - 0)":"("+expr+" * 1)";
+        for(let i=0;i<3;i++){
+          expr="("+expr+" + 0 * ("+randomArithmetic(Math.floor(Math.random()*10)+1)+"))";
         }
         return "void("+expr+");";
       }
-      function appendJunkAfterLine(line){
-        let junk="";
+      function appendExtraOps(line){
+        let extra="";
         for(let i=0;i<3;i++){
-          junk+=generateJunkCode();
+          extra+=generateExtraOp();
         }
-        return line+junk;
+        return line+extra;
       }
       function minifyCode(code){
         return code.replace(/\/\/.*\n/g,"").replace(/\s+/g," ").trim();
       }
       function processCode(code){
+        code=randomizeVariableNames(code);
         let parts=code.split(";");
         for(let i=0;i<parts.length;i++){
           let line=parts[i].trim();
           if(line==="") continue;
           line=obfuscateNumbers(line);
-          parts[i]=appendJunkAfterLine(line);
+          parts[i]=appendExtraOps(line);
         }
         let newCode=parts.join(";");
         return minifyCode(newCode);
@@ -1810,7 +1814,7 @@
         const originalCode=scripts[i].textContent;
         const newCode=processCode(originalCode);
         try{ scripts[i].textContent=newCode; }
-        catch(e){ console.error("Error rewriting script:", e); }
+        catch(e){ console.error(e); }
       }
     })();
     (function(){
@@ -1822,29 +1826,21 @@
         }
         return result;
       }
-      function generateJunkContent(depth){
-        if(depth<=0){
-          return randomString(Math.floor(Math.random()*50)+20);
-        }
-        var content=generateJunkContent(depth-1);
-        return "<div id='"+randomString(6)+"' class='"+randomString(5)+"' style='display:none;'>"+content+"</div>";
+      function generateExtraContent(depth){
+        if(depth<=0){ return randomString(Math.floor(Math.random()*80)+50); }
+        var inner=generateExtraContent(depth-1);
+        return "<div id='"+randomString(6)+"' class='"+randomString(5)+"' style='display:none;'>"+inner+"</div>";
       }
-      function injectJunkElements(root){
-        var children=[];
-        root.childNodes.forEach(function(child){ children.push(child); });
-        children.forEach(function(child){
-          if(child.nodeType===Node.ELEMENT_NODE){
-            injectJunkElements(child);
-          }
-          var junk=document.createElement("div");
-          junk.setAttribute("data-junk", randomString(8));
-          junk.style.display="none";
-          junk.innerHTML=generateJunkContent(Math.floor(Math.random()*5)+5);
-          if(child.nextSibling){
-            root.insertBefore(junk, child.nextSibling);
-          } else {
-            root.appendChild(junk);
-          }
+      function injectExtraElements(root){
+        var nodes=Array.from(root.childNodes);
+        nodes.forEach(function(node){
+          if(node.nodeType===Node.ELEMENT_NODE){ injectExtraElements(node); }
+          var extra=document.createElement("div");
+          extra.setAttribute("data-extra",randomString(8));
+          extra.style.display="none";
+          extra.innerHTML=generateExtraContent(Math.floor(Math.random()*5)+5);
+          if(node.nextSibling){ root.insertBefore(extra,node.nextSibling); }
+          else{ root.appendChild(extra); }
         });
       }
       function wrapEntirePage(){
@@ -1864,14 +1860,78 @@
         body.innerHTML="";
         body.appendChild(wrapper);
       }
-      function injectJunkIntoDOM(){
+      function obfuscateDOM(){
         wrapEntirePage();
-        injectJunkElements(document.body);
+        injectExtraElements(document.body);
+        rebindStaticEvents();
       }
       if(document.readyState==="loading"){
-        document.addEventListener("DOMContentLoaded", injectJunkIntoDOM);
-      } else {
-        injectJunkIntoDOM();
+        document.addEventListener("DOMContentLoaded",obfuscateDOM);
+      } else { obfuscateDOM(); }
+      function rebindStaticEvents(){
+        var es=document.getElementById("enterScreen");
+        var bgM=document.getElementById("bgMusic");
+        var st=document.getElementById("soundToggle");
+        if(es){
+          es.addEventListener("click",function(){
+            bgM.volume=0.5;
+            bgM.play().catch(function(e){ console.log("Audio play prevented by browser policy"); });
+            st.classList.remove("muted");
+            es.style.display="none";
+          },{ once:true });
+        }
+        var stEv=st;
+        if(stEv){
+          stEv.addEventListener("click",function(){
+            if(bgM.paused){
+              bgM.play().catch(function(e){ console.log("Audio play prevented by browser policy"); });
+              bgM.volume=0.5;
+              st.classList.remove("muted");
+            } else {
+              bgM.pause();
+              st.classList.add("muted");
+            }
+          });
+        }
+        var gfB=document.getElementById("gfBtn");
+        var gfM=document.getElementById("gfModal");
+        var gfC=document.getElementById("gfImageContainer");
+        var gfCl=document.getElementById("gfClose");
+        if(gfB){
+          gfB.addEventListener("click",function(){
+            gfM.style.display="flex";
+            setTimeout(function(){ gfM.style.opacity="1"; },10);
+          });
+        }
+        if(gfCl){
+          gfCl.addEventListener("click",function(){
+            gfM.style.opacity="0";
+            setTimeout(function(){ gfM.style.display="none"; },300);
+          });
+        }
+        if(gfM){
+          window.addEventListener("click",function(e){
+            if(e.target===gfM){
+              gfM.style.opacity="0";
+              setTimeout(function(){ gfM.style.display="none"; },300);
+            }
+          });
+        }
+        if(gfC){
+          gfC.addEventListener("mousemove",function(e){
+            var r=gfC.getBoundingClientRect();
+            var x=e.clientX-r.left;
+            var y=e.clientY-r.top;
+            var cx=r.width/2;
+            var cy=r.height/2;
+            var ry=((x-cx)/cx)*10;
+            var rx=((cy-y)/cy)*10;
+            gfC.style.transform="perspective(1000px) rotateX("+rx+"deg) rotateY("+ry+"deg)";
+          });
+          gfC.addEventListener("mouseleave",function(){
+            gfC.style.transform="perspective(1000px) rotateX(0) rotateY(0)";
+          });
+        }
       }
     })();
   </script>
