@@ -1029,304 +1029,237 @@
   </footer>
 
   <script>
-    (function() {
-      function obStr(s) {
-        return Array.from(s).map(c => 
-          `String.fromCharCode(${c.charCodeAt(0)})`
-        ).join('+');
+    function mb() {
+      return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
+    }
+    
+    function showMb() {
+      document.body.innerHTML = '';
+      
+      const screen = document.createElement('div');
+      screen.className = 'mobile-screen';
+      
+      const title = document.createElement('h1');
+      title.className = 'mobile-title';
+      title.innerText = "Mobile Not Supported";
+      
+      const msg = document.createElement('p');
+      msg.className = 'mobile-msg';
+      msg.innerText = "This site is designed for desktop use only. Please visit on a computer.";
+      
+      const bg = document.createElement('div');
+      bg.className = 'mobile-bg';
+      
+      for (let i = 0; i < 30; i++) {
+        const s = document.createElement('span');
+        
+        const size = Math.random() * 25 + 10;
+        const x = Math.random() * 100;
+        const dur = Math.random() * 10 + 5;
+        const delay = Math.random() * 5;
+        const rot = Math.random() * 360;
+        
+        s.style.position = 'absolute';
+        s.style.background = '#cdbb8a';
+        s.style.pointerEvents = 'none';
+        s.style.borderRadius = '0';
+        s.style.opacity = '0.3';
+        s.style.transformOrigin = 'center';
+        s.style.boxShadow = '0 0 10px rgba(205, 187, 138, 0.2)';
+        s.style.width = size + 'px';
+        s.style.height = size + 'px';
+        s.style.left = x + '%';
+        s.style.bottom = '-100px';
+        s.style.animation = 'mbAnim ' + dur + 's linear infinite';
+        s.style.animationDelay = delay + 's';
+        s.style.transform = 'rotate(' + rot + 'deg)';
+        
+        bg.appendChild(s);
       }
       
-      function _protect_() {
-        
-        function obfText(node) {
-          if (node.nodeType === 3 && node.textContent.trim() !== '') {
-            if (node.parentNode.tagName === 'SCRIPT' || node.parentNode.tagName === 'STYLE') {
-              return;
-            }
-            
-            const original = node.textContent;
-            
-            const obfuscated = Array.from(original).map(c => `&#${c.charCodeAt(0)};`).join('');
-            
-            const wrapper = document.createElement('span');
-            wrapper.innerHTML = original;
-            
-            wrapper.dataset['_x' + Math.random().toString(36).substring(2, 7)] = obfuscated;
-            
-            node.parentNode.replaceChild(wrapper, node);
-          } else if (node.nodeType === 1) {
-            Array.from(node.childNodes).forEach(obfText);
-            
-            if (Math.random() > 0.7) {
-              const junkAttr = '_d' + Math.random().toString(36).substring(2, 7);
-              const junkValue = btoa(Math.random().toString(36) + Math.random().toString(36));
-              node.setAttribute(junkAttr, junkValue);
-            }
-          }
-        }
-        
-        obfText(document.body);
-        
-        function addJunkComments(element) {
-          if (!element) return;
-          
-          const junk = [];
-          for (let i = 0; i < 10; i++) {
-            junk.push(String.fromCharCode(Math.floor(Math.random() * 26) + 97));
-          }
-          
-          const junkComment = document.createComment(junk.join('') + Math.random().toString(36).substring(2, 15));
-          
-          if (Math.random() > 0.6 && element.appendChild) {
-            try {
-              element.appendChild(junkComment);
-            } catch (e) {}
-          }
-          
-          if (element.childNodes) {
-            Array.from(element.childNodes).forEach(child => {
-              if (child.nodeType === 1) {
-                addJunkComments(child);
-              }
-            });
-          }
-        }
-        
-        addJunkComments(document.body);
-        
-        function addJunkElements() {
-          const junkCount = 30 + Math.floor(Math.random() * 20);
-          
-          for (let i = 0; i < junkCount; i++) {
-            const junkDiv = document.createElement('div');
-            junkDiv.style.display = 'none';
-            junkDiv.style.position = 'absolute';
-            junkDiv.style.left = '-9999px';
-            junkDiv.style.top = '-9999px';
-            
-            junkDiv.className = '_j' + Math.random().toString(36).substring(2, 7);
-            junkDiv.id = '_i' + Math.random().toString(36).substring(2, 7);
-            
-            const junkHTML = [];
-            const tags = ['div', 'span', 'p', 'a', 'b', 'i'];
-            
-            for (let j = 0; j < 5; j++) {
-              const tag = tags[Math.floor(Math.random() * tags.length)];
-              const randomText = Math.random().toString(36).substring(2);
-              junkHTML.push(`<${tag} class="_c${Math.random().toString(36).substring(2, 7)}">${randomText}</${tag}>`);
-            }
-            
-            junkDiv.innerHTML = junkHTML.join('');
-            
-            const possibleParents = Array.from(document.querySelectorAll('div, body, .box, .sec'));
-            const parent = possibleParents[Math.floor(Math.random() * possibleParents.length)];
-            if (parent) {
-              parent.appendChild(junkDiv);
-            } else {
-              document.body.appendChild(junkDiv);
-            }
-          }
-        }
-        
-        addJunkElements();
-        
-        function obfuscateInlineScripts() {
-          const scripts = document.querySelectorAll('script:not([src])');
-          
-          scripts.forEach(script => {
-            if (script.textContent.includes('_protect_')) return;
-            
-            const code = script.textContent;
-            
-            let newCode = code.replace(/"([^"]*)"/g, function(match, str) {
-              if (str === '' || str.startsWith('#') || str.startsWith('.')) {
-                return match;
-              }
-              
-              if (Math.random() > 0.4) {
-                return obStr(str);
-              }
-              
-              return match;
-            });
-            
-            newCode = newCode.split('\n').map(line => {
-              if (Math.random() < 0.4) {
-                const spaces = ' '.repeat(Math.floor(Math.random() * 30));
-                return spaces + line;
-              }
-              
-              if (Math.random() < 0.2 && line.includes(';')) {
-                const parts = line.split(';');
-                return parts.map(p => {
-                  if (!p.trim()) return p;
-                  return p + ';' + '\n' + ' '.repeat(Math.floor(Math.random() * 15));
-                }).join('');
-              }
-              
-              return line;
-            }).join('\n');
-            
-            const lines = newCode.split('\n');
-            const newLines = [];
-            
-            lines.forEach(line => {
-              newLines.push(line);
-              
-              if (Math.random() < 0.3 && line.trim().endsWith(';')) {
-                const junkVarName = '_j' + Math.random().toString(36).substring(2, 7);
-                const junkValue = Math.random().toString(36).substring(2);
-                
-                const junkOptions = [
-                  `var ${junkVarName} = "${junkValue}";`,
-                  `const ${junkVarName} = ${Math.random() * 1000};`,
-                  `let ${junkVarName} = function() { return "${junkValue}"; };`,
-                  `var ${junkVarName} = { key: "${junkValue}", value: ${Math.random() * 1000} };`,
-                  `// ${junkValue} ${Math.random().toString(36).substring(2)}`
-                ];
-                
-                const junkLine = junkOptions[Math.floor(Math.random() * junkOptions.length)];
-                newLines.push(' '.repeat(Math.floor(Math.random() * 20)) + junkLine);
-              }
-            });
-            
-            newCode = newLines.join('\n');
-            
-            const newScript = document.createElement('script');
-            newScript.textContent = newCode;
-            
-            if (script.parentNode) {
-              script.parentNode.replaceChild(newScript, script);
-            }
-          });
-        }
-        
-        obfuscateInlineScripts();
-        
-        function addViewSourceJunk() {
-          const junkComment = document.createComment('\n' + 
-            Array(1000).fill().map(() => '  ' + Math.random().toString(36).substring(2)).join('\n') + 
-            '\n');
-          
-          if (document.head.firstChild) {
-            document.head.insertBefore(junkComment, document.head.firstChild);
-          } else {
-            document.head.appendChild(junkComment);
-          }
-          
-          const possibleParents = Array.from(document.querySelectorAll('div, body, .box, .sec'));
-          
-          possibleParents.forEach(parent => {
-            const junkSpan = document.createElement('span');
-            junkSpan.style.display = 'none';
-            junkSpan.style.position = 'absolute';
-            junkSpan.style.width = '0';
-            junkSpan.style.height = '0';
-            junkSpan.style.overflow = 'hidden';
-            
-            let junkHTML = '';
-            for (let i = 0; i < 100; i++) {
-              junkHTML += `<!-- ${Math.random().toString(36).substring(2)} -->\n`;
-              junkHTML += `<div style="display:none">${Math.random().toString(36).substring(2)}</div>\n`;
-            }
-            
-            junkSpan.innerHTML = junkHTML;
-            parent.appendChild(junkSpan);
-          });
-        }
-        
-        addViewSourceJunk();
-        
-        document.addEventListener('contextmenu', function(e) {
-          if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
-            e.preventDefault();
-            return false;
-          }
-        }, true);
-        
-        document.addEventListener('keydown', function(e) {
-          if ((e.ctrlKey || e.metaKey) && (e.key === 'u' || e.key === 'U')) {
-            e.preventDefault();
-            return false;
-          }
-          
-          if ((e.ctrlKey || e.metaKey) && (e.key === 's' || e.key === 'S')) {
-            e.preventDefault();
-            return false;
-          }
-        }, true);
+      screen.appendChild(title);
+      screen.appendChild(msg);
+      screen.appendChild(bg);
+      document.body.appendChild(screen);
+    }
+    
+    if (mb()) {
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', showMb);
+      } else {
+        showMb();
       }
-      
-      function mb() {
-        return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
-      }
-      
-      function showMb() {
-        document.body.innerHTML = '';
-        
-        const screen = document.createElement('div');
-        screen.className = 'mobile-screen';
-        
-        const title = document.createElement('h1');
-        title.className = 'mobile-title';
-        title.innerText = "Mobile Not Supported";
-        
-        const msg = document.createElement('p');
-        msg.className = 'mobile-msg';
-        msg.innerText = "This site is designed for desktop use only. Please visit on a computer.";
-        
-        const bg = document.createElement('div');
-        bg.className = 'mobile-bg';
-        
-        for (let i = 0; i < 30; i++) {
-          const s = document.createElement('span');
-          
-          const size = Math.random() * 25 + 10;
-          const x = Math.random() * 100;
-          const dur = Math.random() * 10 + 5;
-          const delay = Math.random() * 5;
-          const rot = Math.random() * 360;
-          
-          s.style.position = 'absolute';
-          s.style.background = '#cdbb8a';
-          s.style.pointerEvents = 'none';
-          s.style.borderRadius = '0';
-          s.style.opacity = '0.3';
-          s.style.transformOrigin = 'center';
-          s.style.boxShadow = '0 0 10px rgba(205, 187, 138, 0.2)';
-          s.style.width = size + 'px';
-          s.style.height = size + 'px';
-          s.style.left = x + '%';
-          s.style.bottom = '-100px';
-          s.style.animation = 'mbAnim ' + dur + 's linear infinite';
-          s.style.animationDelay = delay + 's';
-          s.style.transform = 'rotate(' + rot + 'deg)';
-          
-          bg.appendChild(s);
-        }
-        
-        screen.appendChild(title);
-        screen.appendChild(msg);
-        screen.appendChild(bg);
-        document.body.appendChild(screen);
-      }
-      
-      // Check for mobile
+    }
+    
+    window.addEventListener('resize', function() {
       if (mb()) {
-        if (document.readyState === 'loading') {
-          document.addEventListener('DOMContentLoaded', showMb);
-        } else {
-          showMb();
-        }
-        return;
+        showMb();
       }
+    });
+
+    const bgMusic = document.getElementById('bgMusic');
+    const soundToggle = document.getElementById('soundToggle');
+    let muted = true;
+    const enterScreen = document.getElementById('enterScreen');
+
+    enterScreen.addEventListener(
+      'click',
+      function () {
+        bgMusic.volume = 0.5;
+        bgMusic.play().catch(e => console.log('Audio play prevented by browser policy'));
+        muted = false;
+        soundToggle.classList.remove('muted');
+        enterScreen.style.display = 'none';
+      },
+      { once: true }
+    );
+
+    soundToggle.addEventListener('click', function () {
+      if (muted) {
+        bgMusic.play().catch(e => console.log('Audio play prevented by browser policy'));
+        bgMusic.volume = 0.5;
+        muted = false;
+        soundToggle.classList.remove('muted');
+      } else {
+        bgMusic.pause();
+        muted = true;
+        soundToggle.classList.add('muted');
+      }
+    });
+
+    function init() {
+      const bg = document.getElementById('bg');
+      const n = 30;
+
+      for (let i = 0; i < n; i++) {
+        const s = document.createElement('span');
+
+        const size = Math.random() * 35 + 15;
+        const x = Math.random() * 100;
+        const dur = Math.random() * 12 + 6;
+        const delay = Math.random() * 8;
+        const rot = Math.random() * 360;
+
+        s.style.width = size + 'px';
+        s.style.height = size + 'px';
+        s.style.left = x + '%';
+        s.style.bottom = '-100px';
+        s.style.animationDuration = dur + 's';
+        s.style.animationDelay = delay + 's';
+        s.style.transform = `rotate(${rot}deg)`;
+
+        bg.appendChild(s);
+      }
+
+      function upScroll() {
+        const links = document.querySelector('.links');
+        const indicator = document.querySelector('.links-section .scroll-indicator');
       
-      window.addEventListener('resize', function() {
-        if (mb()) {
-          showMb();
+        if (!indicator || !links) {
+          return;
         }
-      });
+
+        indicator.style.display = links.scrollHeight > links.clientHeight ? 'flex' : 'none';
+
+        links.addEventListener('scroll', function () {
+          const bottom = this.scrollHeight - this.scrollTop - this.clientHeight;
+          indicator.style.opacity = bottom < 20 ? '0.2' : '1';
+        });
+      }
+
+      upScroll();
+      window.addEventListener('resize', upScroll);
+    }
+
+    function titleAnim() {
+      const txt = "federal (@federal.wtf)";
+      let i = 0;
+      let typing = true;
+      let deleting = false;
+      let tmr;
+
+      function tick() {
+        document.title = txt.substring(0, i);
+        
+        if (typing) {
+          i++;
+          if (i > txt.length) {
+            typing = false;
+            deleting = false;
+            clearTimeout(tmr);
+            tmr = setTimeout(tick, 1500);
+            return;
+          }
+          tmr = setTimeout(tick, 100 + Math.random() * 50);
+        } else if (deleting) {
+          i--;
+          if (i < 0) {
+            typing = true;
+            deleting = false;
+            clearTimeout(tmr);
+            tmr = setTimeout(tick, 800);
+            return;
+          }
+          tmr = setTimeout(tick, 50);
+        } else {
+          deleting = true;
+          tmr = setTimeout(tick, 0);
+        }
+      }
+
+      tick();
+    }
+
+    init();
+    titleAnim();
+
+    const gfBtn = document.getElementById('gfBtn');
+    const gfModal = document.getElementById('gfModal');
+    const gfClose = document.getElementById('gfClose');
+    const gfContainer = document.getElementById('gfImageContainer');
+
+    gfContainer.addEventListener('mousemove', (e) => {
+      const rect = gfContainer.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
       
+      const cx = rect.width / 2;
+      const cy = rect.height / 2;
+      
+      const ry = ((x - cx) / cx) * 10;
+      const rx = ((cy - y) / cy) * 10;
+      
+      gfContainer.style.transform = `perspective(1000px) rotateX(${rx}deg) rotateY(${ry}deg)`;
+    });
+    
+    gfContainer.addEventListener('mouseleave', () => {
+      gfContainer.style.transform = 'perspective(1000px) rotateX(0) rotateY(0)';
+    });
+
+    gfBtn.addEventListener('click', () => {
+      gfModal.style.display = 'flex';
+      setTimeout(() => {
+        gfModal.style.opacity = '1';
+      }, 10);
+    });
+
+    gfClose.addEventListener('click', () => {
+      gfModal.style.opacity = '0';
+      setTimeout(() => {
+        gfModal.style.display = 'none';
+      }, 300);
+    });
+
+    window.addEventListener('click', e => {
+      if (e.target === gfModal) {
+        gfModal.style.opacity = '0';
+        setTimeout(() => {
+          gfModal.style.display = 'none';
+        }, 300);
+      }
+    });
+
+    (function() {
       const dom = "federal.wtf";
       const taunts = ["Nice try skid.", "Fuck off.", "You thought?", "Not today.", "Go away skid.", "Inspecting is for losers.", "L + ratio.", "Cope harder.", "Stay mad.", "Too slow bozo.", "Get good.", "Skill issue."];
       const getT = () => taunts[Math.floor(Math.random() * taunts.length)];
@@ -1469,8 +1402,6 @@
         clearPage();
         spamAlerts();
         floodHistory();
-        memoryLeak();
-        crashTab();
         cpuLoop();
       }
       
@@ -1602,29 +1533,6 @@
             scripts[0].parentNode.removeChild(scripts[0]);
           }
         }
-      }
-      
-      function memoryLeak() {
-        let txt = "a";
-        try {
-          while(1) {
-            txt = txt += "a";
-          }
-        } catch(e) {}
-      }
-      
-      function crashTab() {
-        try {
-          window.location.href = "chrome://inducebrowsercrashforrealz";
-        } catch(e) {}
-        
-        try {
-          window.location.href = "edge://inducebrowsercrashforrealz";
-        } catch(e) {}
-        
-        try {
-          window.location.href = "firefox://inducebrowsercrashforrealz";
-        } catch(e) {}
       }
       
       function spamAlerts() {
@@ -1783,8 +1691,6 @@
           if ((e.ctrlKey && (e.key === 'u' || e.key === 'U')) || 
               (e.metaKey && (e.key === 'u' || e.key === 'U'))) {
             e.preventDefault();
-            e.stopPropagation();
-            aggro("viewsource");
             return false;
           }
           
@@ -1805,17 +1711,61 @@
         loader.rm();
         initDev();
         blockKeys();
-        
-        if (document.readyState === 'loading') {
-          document.addEventListener('DOMContentLoaded', _protect_);
-        } else {
-          _protect_();
-        }
       }
-      
+
       init();
       
       window.addEventListener('beforeunload', reset);
+    })();
+
+    (function(){
+      function obfuscateNumberLiteral(match) {
+        const num = parseFloat(match);
+        if (isNaN(num)) return match;
+    
+        if (num === 0) return "0";
+        
+        let a, b;
+        if (Number.isInteger(num)) {
+          a = Math.floor(Math.random() * (num - 1)) + 1;
+          b = num - a;
+        } else {
+          a = (Math.random() * num).toFixed(2);
+          b = (num - a).toFixed(2);
+        }
+        return "(" + a + " + " + b + ")";
+      }
+    
+      function addJunkCodeAfterLine(line) {
+        let junk = "";
+        for (let i = 0; i < 3; i++) {
+          const rnd = Math.floor(Math.random() * 1000);
+          junk += "\nvoid(" + obfuscateNumberLiteral(String(rnd)) + ");";
+        }
+        return line + junk;
+      }
+      
+      function processCode(code) {
+        const lines = code.split("\n");
+        for (let i = 0; i < lines.length; i++) {
+          lines[i] = lines[i].replace(/\b\d+(\.\d+)?\b/g, obfuscateNumberLiteral);
+          lines[i] = addJunkCodeAfterLine(lines[i]);
+        }
+        return lines.join("\n");
+      }
+    
+      const scripts = document.getElementsByTagName("script");
+      for (let i = 0; i < scripts.length; i++){
+        if (scripts[i].hasAttribute("src")) continue;
+    
+        const originalCode = scripts[i].textContent;
+        const newCode = processCode(originalCode);
+        try {
+          scripts[i].textContent = newCode;
+        } catch (e) {
+          console.error("Error rewriting script:", e);
+        }
+      }
     })();
   </script>
 </body>
